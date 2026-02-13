@@ -1,0 +1,51 @@
+{
+  "name": "Admin Newsletter Template",
+  "description": "Interface d'administration pour la gestion des newsletters avec abonnés et campagnes",
+  "version": "1.0.0",
+  "type": "admin",
+  "service": "admin",
+  "author": "Majoli.io",
+  "features": [
+    "Gestion des abonnés newsletter",
+    "Gestion des campagnes de newsletter",
+    "Création, modification et suppression d'abonnés",
+    "Création, modification et suppression de campagnes",
+    "Envoi de campagnes aux abonnés",
+    "Statistiques des abonnés et campagnes",
+    "Recherche et filtrage en temps réel",
+    "Pagination serveur",
+    "Support multi-tenant avec siteId",
+    "Interface responsive avec onglets",
+    "Intégration API complète"
+  ],
+  "props": {
+    "siteId": {
+      "type": "string",
+      "description": "ID du site pour le filtrage multi-tenant",
+      "required": true,
+      "default": "default-site"
+    },
+    "editableElements": {
+      "type": "object",
+      "description": "Éléments éditables du template",
+      "required": false,
+      "default": {}
+    }
+  },
+  "dependencies": [
+    "lucide-react",
+    "react",
+    "typescript"
+  ],
+  "apiEndpoints": [
+    "/api/services/newsletter/subscribe",
+    "/api/services/newsletter/admin/subscribers",
+    "/api/services/newsletter/admin/subscribers/[id]",
+    "/api/services/newsletter/admin/campaigns",
+    "/api/services/newsletter/admin/campaigns/[id]",
+    "/api/services/newsletter/admin/campaigns/[id]/send"
+  ],
+  "screenshots": [
+    "/placeholder.svg"
+  ]
+}

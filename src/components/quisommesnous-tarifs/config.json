@@ -1,0 +1,112 @@
+{
+    "id": "quisommesnous-tarifs",
+    "name": "Qui sommes-nous Tarifs",
+    "type": "section",
+    "version": 1,
+    "description": "Composant avec image à gauche et boîte de texte à droite sur fond à bandes verticales.",
+    "author": "MajoliHub",
+    "thumbnail": "/placeholder.svg",
+    "dependencies": {},
+    "required": {
+        "backgroundColor": true,
+        "stripeColor1": true,
+        "stripeColor2": true,
+        "rightBoxBackgroundColor": true,
+        "titleColor": true,
+        "textColor": true,
+        "fontFamily": true,
+        "titleFontFamily": true,
+        "mediaUrl1": true,
+        "mediaAlt1": true,
+        "mediaType1": true,
+        "title": true,
+        "paragraph1": true,
+        "paragraph2": true
+    },
+    "props": {
+        "backgroundColor": {
+            "type": "string",
+            "required": true,
+            "default": "#FFFFFF",
+            "label": "Couleur de fond"
+        },
+        "stripeColor1": {
+            "type": "string",
+            "required": true,
+            "default": "#FFE5E5",
+            "label": "Couleur bande 1"
+        },
+        "stripeColor2": {
+            "type": "string",
+            "required": true,
+            "default": "#FFFFFF",
+            "label": "Couleur bande 2"
+        },
+        "rightBoxBackgroundColor": {
+            "type": "string",
+            "required": true,
+            "default": "#2D5F4F",
+            "label": "Couleur fond boîte droite"
+        },
+        "titleColor": {
+            "type": "string",
+            "required": true,
+            "default": "#FFD700",
+            "label": "Couleur titre"
+        },
+        "textColor": {
+            "type": "string",
+            "required": true,
+            "default": "#FFFFFF",
+            "label": "Couleur texte"
+        },
+        "fontFamily": {
+            "type": "string",
+            "required": true,
+            "default": "DM Sans",
+            "label": "Police principale"
+        },
+        "titleFontFamily": {
+            "type": "string",
+            "required": true,
+            "default": "Playfair Display",
+            "label": "Police des titres"
+        },
+        "mediaUrl1": {
+            "type": "string",
+            "required": true,
+            "default": "",
+            "label": "Image de gauche"
+        },
+        "mediaAlt1": {
+            "type": "string",
+            "required": true,
+            "default": "Traitement laser",
+            "label": "Texte alternatif image gauche"
+        },
+        "mediaType1": {
+            "type": "string",
+            "required": true,
+            "default": "image",
+            "label": "Type média image gauche"
+        },
+        "title": {
+            "type": "string",
+            "required": true,
+            "default": "Qui sommes-nous ?",
+            "label": "Titre"
+        },
+        "paragraph1": {
+            "type": "string",
+            "required": true,
+            "default": "Studio Laser Santé est un centre spécialisé dans l'épilation définitive. Fondé par une infirmière diplômée, nous utilisons la technologie avancée Alexandrite & Nd:YAG pour tous types de peaux avec une précision médicale.",
+            "label": "Paragraphe 1"
+        },
+        "paragraph2": {
+            "type": "string",
+            "required": true,
+            "default": "Notre approche privilégie le bien-être de nos clients, un confort optimal et l'utilisation de la technologie de refroidissement cryogénique pour une expérience agréable et sécurisée. Venez profiter de l'excellence technique dans une atmosphère calme et apaisante.",
+            "label": "Paragraphe 2"
+        }
+    }
+}

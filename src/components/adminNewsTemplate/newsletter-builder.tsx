@@ -1,0 +1,1259 @@
+"use client"
+
+import { useRef, useState, useEffect } from "react"
+import { Save, Eye, ArrowLeft, RefreshCw, CheckCircle, AlertCircle } from "lucide-react"
+import { useSiteId } from "@/hooks/use-site-id"
+
+let EmailEditor: any = null
+let EditorRef: any = null
+
+// Types
+interface NewsletterTemplate {
+  id?: string
+  title: string
+  subject: string
+  design?: any
+  htmlContent?: string
+  status: "draft" | "sent" | "scheduled"
+  createdAt: string
+  updatedAt: string
+}
+
+interface NewsletterBuilderProps {
+  templateId?: string
+  initialTemplate?: NewsletterTemplate
+  onSave?: (template: NewsletterTemplate) => void
+  onBack?: () => void
+}
+
+// Main Newsletter Builder Component
+export default function NewsletterBuilder({ templateId, initialTemplate, onSave, onBack }: NewsletterBuilderProps) {
+  const siteId = useSiteId()
+  const emailEditorRef = useRef<any>(null)
+
+  const [template, setTemplate] = useState<NewsletterTemplate>(
+    initialTemplate || {
+      title: "Nouvelle Newsletter",
+      subject: "",
+      design: null,
+      htmlContent: "",
+      status: "draft",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  )
+
+  const [campaignId, setCampaignId] = useState<string | undefined>(templateId)
+
+  const [isLoading, setIsLoading] = useState(false)
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [preview, setPreview] = useState(false)
+  const [isEditorReady, setIsEditorReady] = useState(false)
+  const [editorError, setEditorError] = useState<string | null>(null)
+  const [showFallback, setShowFallback] = useState(false)
+  const [componentLoaded, setComponentLoaded] = useState(false)
+
+  useEffect(() => {
+    const loadEmailEditor = async () => {
+      try {
+        const emailEditorModule = await import("react-email-editor")
+        EmailEditor = emailEditorModule.default || emailEditorModule.EmailEditor
+        EditorRef = emailEditorModule.EditorRef
+        console.log("EmailEditor imported successfully:", !!EmailEditor)
+        setComponentLoaded(true)
+      } catch (error) {
+        console.error("Failed to import EmailEditor:", error)
+        setEditorError("Failed to load email editor component")
+      }
+    }
+
+    loadEmailEditor()
+  }, [])
+
+  // Auto-hide messages
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [message])
+
+  // Load template data when templateId is provided
+  useEffect(() => {
+    const loadTemplate = async () => {
+      if (templateId && !initialTemplate) {
+        try {
+          setIsLoading(true)
+          const response = await fetch(`/api/services/newsletter/admin/campaigns/${templateId}`, {
+            headers: {
+              "x-site-id": siteId,
+            },
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            console.log("[DEBUG] API response data:", data) // Debug log
+            let templateData: NewsletterTemplate | null = null
+
+            if (data.success && data.data && data.data.templateData) {
+              templateData = data.data.templateData
+            } else if (data.success && data.data && data.data.campaign && data.data.campaign.templateData) {
+              templateData = data.data.campaign.templateData
+            }
+
+            if (templateData) {
+              setTemplate(templateData)
+              const extractedCampaignId =
+                data.data?.campaign?._id || data.data?.campaign?.id || data.data?._id || data.data?.id || templateId
+              console.log("[DEBUG] Setting campaign ID:", extractedCampaignId)
+              setCampaignId(extractedCampaignId)
+              setMessage({ type: "success", text: "Template chargé avec succès!" })
+            }
+          } else {
+            console.error("Failed to load template:", response.status, response.statusText)
+            setMessage({ type: "error", text: "Erreur lors du chargement du template" })
+          }
+        } catch (error) {
+          console.error("Error loading template:", error)
+          setMessage({ type: "error", text: "Erreur lors du chargement du template" })
+        } finally {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadTemplate()
+  }, [templateId, initialTemplate, siteId])
+
+  // When API-loaded design arrives after editor is ready, load it
+  useEffect(() => {
+    const unlayer = emailEditorRef.current?.editor
+    if (!unlayer) return
+    if (!isEditorReady) return
+    if (!template?.design) return
+    try {
+      console.log("[Builder] Loading design from effect")
+      unlayer.loadDesign(template.design)
+    } catch (e) {
+      console.error("Failed to load design from effect:", e)
+    }
+  }, [isEditorReady, template?.design])
+
+  const updateTemplate = (updates: Partial<NewsletterTemplate>) => {
+    setTemplate((prev) => ({
+      ...prev,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    }))
+  }
+
+  // Save design to draft
+  const saveDesign = () => {
+    const unlayer = emailEditorRef.current?.editor
+
+    if (!unlayer) {
+      setMessage({ type: "error", text: "L'éditeur n'est pas encore prêt" })
+      return
+    }
+
+    unlayer.saveDesign((design) => {
+      console.log("Design saved:", design)
+      updateTemplate({ design })
+      setMessage({ type: "success", text: "Design sauvegardé!" })
+    })
+  }
+
+  // Export HTML and save to draft
+  const exportHtml = () => {
+    const unlayer = emailEditorRef.current?.editor
+
+    if (!unlayer) {
+      setMessage({ type: "error", text: "L'éditeur n'est pas encore prêt" })
+      return
+    }
+
+    unlayer.exportHtml((data) => {
+      const { html } = data
+      console.log("HTML exported:", html)
+      updateTemplate({ htmlContent: html })
+      setMessage({ type: "success", text: "HTML exporté!" })
+    })
+  }
+
+  // Toggle preview
+  const togglePreview = () => {
+    const unlayer = emailEditorRef.current?.editor
+
+    if (!unlayer) {
+      setMessage({ type: "error", text: "L'éditeur n'est pas encore prêt" })
+      return
+    }
+
+    if (preview) {
+      unlayer.hidePreview()
+      setPreview(false)
+    } else {
+      unlayer.showPreview("desktop")
+      setPreview(true)
+    }
+  }
+
+  // Save to database
+  const handleSave = async () => {
+    if (!template.subject.trim()) {
+      setMessage({ type: "error", text: "Veuillez ajouter un sujet à votre newsletter" })
+      return
+    }
+
+    try {
+      setIsLoading(true)
+
+      // First export HTML to get the latest content
+      const unlayer = emailEditorRef.current?.editor
+      if (unlayer) {
+        unlayer.exportHtml((data) => {
+          const { html } = data
+
+          // Then save design
+          unlayer.saveDesign((design) => {
+            const finalTemplate = {
+              ...template,
+              design,
+              htmlContent: html,
+              updatedAt: new Date().toISOString(),
+            }
+
+            saveToDatabase(finalTemplate)
+          })
+        })
+      } else {
+        saveToDatabase(template)
+      }
+    } catch (error) {
+      console.error("Error saving:", error)
+      setMessage({ type: "error", text: "Erreur lors de la sauvegarde" })
+      setIsLoading(false)
+    }
+  }
+
+  const saveToDatabase = async (finalTemplate: NewsletterTemplate) => {
+    try {
+      // Ensure textContent is populated by extracting plain text from HTML
+      const html = finalTemplate.htmlContent || ""
+      const textOnly = html
+        .replace(/<style[\s\S]*?<\/style>/gi, " ")
+        .replace(/<script[\s\S]*?<\/script>/gi, " ")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+      const safeTextContent = textOnly || finalTemplate.subject || finalTemplate.title || "Contenu"
+
+      const campaignData = {
+        title: finalTemplate.title,
+        subject: finalTemplate.subject,
+        htmlContent: finalTemplate.htmlContent,
+        textContent: safeTextContent,
+        siteId,
+        status: "draft",
+        targetAudience: {
+          allSubscribers: true,
+          interests: [],
+          segments: [],
+        },
+        templateData: {
+          ...finalTemplate,
+          // Add a marker to identify this as a visual editor campaign
+          type: "visual-editor",
+          hasVisualEditor: true,
+          // The design contains the blocks and layout
+          design: finalTemplate.design,
+        },
+      }
+
+      let response
+      if (campaignId) {
+        console.log("[DEBUG] Updating existing campaign with ID:", campaignId)
+        // Update existing campaign
+        response = await fetch(`/api/services/newsletter/admin/campaigns/${campaignId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "x-site-id": siteId,
+          },
+          body: JSON.stringify(campaignData),
+        })
+      } else {
+        console.log("[DEBUG] Creating new campaign")
+        // Create new campaign
+        response = await fetch("/api/services/newsletter/admin/campaigns", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-site-id": siteId,
+          },
+          body: JSON.stringify(campaignData),
+        })
+      }
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log("[DEBUG] Save response data:", data) // Debug log
+        if (data.success) {
+          if (!campaignId && data.data?.campaign?._id) {
+            console.log("[DEBUG] Setting new campaign ID:", data.data.campaign._id)
+            setCampaignId(data.data.campaign._id)
+          } else if (!campaignId && data.data?.campaign?.id) {
+            console.log("[DEBUG] Setting new campaign ID:", data.data.campaign.id)
+            setCampaignId(data.data.campaign.id)
+          }
+          setMessage({ type: "success", text: "Newsletter sauvegardée avec succès!" })
+          onSave?.(finalTemplate)
+        } else {
+          setMessage({ type: "error", text: data.error || "Erreur lors de la sauvegarde" })
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({ error: "Erreur réseau" }))
+        setMessage({ type: "error", text: errorData.error || `Erreur HTTP ${response.status}` })
+      }
+    } catch (error) {
+      console.error("Error saving to database:", error)
+      setMessage({ type: "error", text: "Erreur lors de la sauvegarde" })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Editor event handlers
+  const onLoad = (unlayer: any) => {
+    console.log("Editor loaded:", unlayer)
+    setEditorError(null)
+    setIsEditorReady(true)
+    setComponentLoaded(true)
+
+    // Load existing design if available
+    if (template.design) {
+      console.log("Loading existing design:", template.design)
+      try {
+        unlayer.addEventListener("design:loaded", (data: any) => {
+          console.log("Design loaded event fired", data)
+        })
+        unlayer.loadDesign(template.design)
+        console.log("Design load invoked")
+      } catch (error) {
+        console.error("Error loading design:", error)
+      }
+    }
+  }
+
+  const onReady = (unlayer: any) => {
+    console.log("Editor ready:", unlayer)
+    setEditorError(null)
+    setIsEditorReady(true)
+    setComponentLoaded(true)
+
+    // Dynamically hide English tabs after editor is ready
+    setTimeout(() => {
+      const devTab = document.querySelector('[data-tab="dev"]')
+      const contentTab = document.querySelector('[data-tab="content"]')
+      const blocksTab = document.querySelector('[data-tab="blocks"]')
+      const bodyTab = document.querySelector('[data-tab="body"]')
+
+      if (devTab) (devTab as HTMLElement).style.display = "none"
+
+      console.log("Hidden English tabs:", { devTab, contentTab, blocksTab, bodyTab })
+    }, 1000)
+  }
+
+  const onError = (error: any) => {
+    console.error("Editor error:", error)
+    setEditorError(error.message || "Erreur lors du chargement de l'éditeur")
+  }
+
+  // Timeout to show fallback if editor doesn't load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isEditorReady && !editorError && !componentLoaded) {
+        console.log("Editor timeout - showing fallback")
+        setShowFallback(true)
+      }
+    }, 10000) // 10 seconds timeout
+
+    return () => clearTimeout(timer)
+  }, [isEditorReady, editorError, componentLoaded])
+
+  // Continuously hide English tabs
+  useEffect(() => {
+    if (!isEditorReady) return
+
+    const interval = setInterval(() => {
+      const tabs = document.querySelectorAll("[data-tab]")
+      tabs.forEach((tab) => {
+        const tabName = tab.getAttribute("data-tab")
+        if (tabName && ["dev"].includes(tabName)) {
+          ;(tab as HTMLElement).style.display = "none"
+        }
+      })
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [isEditorReady])
+
+  // If EmailEditor is not available, show error
+  if (!EmailEditor) {
+    return (
+      <div className="h-full flex flex-col bg-gray-50">
+        <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+          <div className="flex items-center gap-4">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Retour
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-400" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Erreur de chargement</h2>
+            <p className="text-gray-600 mb-4">
+              Le composant EmailEditor n'a pas pu être chargé. Vérifiez que le package react-email-editor est installé
+              correctement.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Recharger la page
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="h-full flex flex-col bg-gray-50">
+      {/* Custom CSS to fix editor height and hide English tabs */}
+      <style jsx global>{`
+        /* Fix editor height - make it full width and height */
+        #editor iframe {
+          min-width: 100% !important;
+          width: 100% !important;
+          height: 100% !important;
+        }
+        
+        /* Make the editor container full height */
+        .unlayer-editor {
+          height: 100% !important;
+          min-height: 100% !important;
+        }
+        
+        .unlayer-editor__content {
+          height: 100% !important;
+          min-height: 100% !important;
+        }
+        
+        /* Hide developer tab */
+        [data-tab="dev"] { display: none !important; }
+        
+        /* Hide content tab */
+
+        
+        /* Alternative selectors for different Unlayer versions */
+        .unlayer-editor [data-tab="dev"] { display: none !important; }
+ 
+        
+        /* More specific selectors */
+        .unlayer-editor__content__main__left__sidebar__tabs__tab[data-tab="dev"] { display: none !important; }
+
+        /* Hide Unlayer branding link */
+        a.blockbuilder-branding { display: none !important; visibility: hidden !important; }
+        .blockbuilder-branding { display: none !important; visibility: hidden !important; }
+        [class*="branding"] { display: none !important; }
+      `}</style>
+      {/* Simplified Toolbar - Only essential elements */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Retour
+              </button>
+            )}
+            <div className="h-6 w-px bg-gray-300" />
+            <input
+              type="text"
+              value={template.title}
+              onChange={(e) => updateTemplate({ title: e.target.value })}
+              className="text-lg font-semibold bg-transparent border-none outline-none focus:bg-gray-50 px-3 py-2 rounded-lg transition-colors"
+              placeholder="Titre de la newsletter"
+            />
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  template.status === "draft"
+                    ? "bg-yellow-500"
+                    : template.status === "sent"
+                      ? "bg-green-500"
+                      : "bg-blue-500"
+                }`}
+              />
+              <span className="capitalize">{template.status}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={togglePreview}
+              disabled={!isEditorReady}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 rounded-lg transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+              {preview ? "Masquer" : "Aperçu"}
+            </button>
+
+            <button
+              onClick={handleSave}
+              disabled={!isEditorReady || isLoading}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors"
+            >
+              {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Sauvegarder
+            </button>
+          </div>
+        </div>
+
+        {/* Subject line */}
+        <div className="mt-4">
+          <input
+            type="text"
+            value={template.subject}
+            onChange={(e) => updateTemplate({ subject: e.target.value })}
+            className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+            placeholder="Objet de l'email..."
+          />
+        </div>
+
+        {/* Messages */}
+        {message && (
+          <div
+            className={`mt-4 p-4 rounded-lg text-sm ${
+              message.type === "success"
+                ? "bg-green-100 text-green-800 border border-green-200"
+                : "bg-red-100 text-red-800 border border-red-200"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {message.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+              {message.text}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Email Editor - Full height */}
+      <div className="flex-1 relative">
+        {isLoading && !isEditorReady ? (
+          <div className="absolute inset-0 bg-white flex items-center justify-center z-10">
+            <div className="text-center">
+              <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-gray-400" />
+              <p className="text-gray-500">Chargement de l'éditeur...</p>
+            </div>
+          </div>
+        ) : null}
+
+        {editorError ? (
+          <div className="absolute inset-0 bg-white flex items-center justify-center z-10">
+            <div className="text-center">
+              <AlertCircle className="w-8 h-8 mx-auto mb-4 text-red-400" />
+              <p className="text-red-500 font-medium">Erreur de l'éditeur</p>
+              <p className="text-gray-500 text-sm mt-2">{editorError}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Recharger la page
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {showFallback ? (
+          <div className="absolute inset-0 bg-white flex items-center justify-center z-10">
+            <div className="text-center">
+              <AlertCircle className="w-8 h-8 mx-auto mb-4 text-yellow-400" />
+              <p className="text-yellow-600 font-medium">L'éditeur ne se charge pas</p>
+              <p className="text-gray-500 text-sm mt-2">
+                L'éditeur react-email-editor ne se charge pas. Vérifiez la console pour plus d'informations.
+              </p>
+              <div className="mt-4 space-y-2">
+                <button
+                  onClick={() => window.location.reload()}
+                  className="block w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Recharger la page
+                </button>
+                <button
+                  onClick={() => setShowFallback(false)}
+                  className="block w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                >
+                  Réessayer
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        <div style={{ height: "100%", width: "100%" }}>
+          {EmailEditor && (
+            <EmailEditor
+              ref={emailEditorRef}
+              onLoad={onLoad}
+              onReady={onReady}
+              onError={onError}
+              editorId="editor-container"
+              displayMode="email"
+              minHeight="100vh"
+              style={{ flex: 1 }}
+              options={{
+                // Real Unlayer options
+                version: "latest",
+                appearance: {
+                  theme: "modern_light",
+                },
+                // Disable tabs directly via Unlayer configuration
+                tabs: {
+                  dev: { enabled: false },
+                },
+                features: {
+                  preview: true,
+                  imageEditor: true,
+                  stockImages: true,
+                  spellChecker: true,
+                  customCSS: true,
+                  customJS: false,
+                  mergeTags: true,
+                },
+                // Disable developer tab
+                developer: false,
+                // Set locale to French
+                locale: "fr-FR",
+                // Add French translations
+                translations: {
+                  "en-US": {
+                      "buttons.add_column": "Ajouter une colonne",
+                      "buttons.add_content": "Ajouter du contenu",
+                      "buttons.add_display_condition": "Ajouter une condition d'affichage",
+                      "buttons.add_field": "Ajouter champ",
+                      "buttons.add_footer": "Ajouter un pied de page",
+                      "buttons.add_header": "Ajouter un en-tête",
+                      "buttons.add_new_field": "Ajouter un nouveau champ",
+                      "buttons.add_new_item": "Ajouter un nouvel élément",
+                      "buttons.add_row": "Ajouter une ligne",
+                      "buttons.add_text": "Ajouter du texte",
+                      "buttons.apply": "Appliquer",
+                      "buttons.apply_effects": "Appliquer les effets et plus",
+                      "buttons.back": "Retour",
+                      "buttons.background": "Arrière-plan",
+                      "buttons.cancel": "Annuler",
+                      "buttons.change": "Modifier",
+                      "buttons.change_image": "Changer l'image",
+                      "buttons.close": "Fermer",
+                      "buttons.comment": "Commentez",
+                      "buttons.corners": "Coins",
+                      "buttons.crop": "Rogner",
+                      "buttons.delete": "Supprimer",
+                      "buttons.deselect": "Désélectionner",
+                      "buttons.desktop": "Bureau",
+                      "buttons.disable_amp": "Désactiver l'AMP",
+                      "buttons.done": "Ok",
+                      "buttons.draw": "Dessiner",
+                      "buttons.drawing": "Dessin",
+                      "buttons.duplicate": "Dupliquer",
+                      "buttons.duplication_disabled_usage_limit": "Vous ne pouvez dupliquer cela en raison d'une limite d'utilisation",
+                      "buttons.edit": "Modifiez",
+                      "buttons.edit_image": "Modifier l'image",
+                      "buttons.edit_prompt": "Éditer l'invite",
+                      "buttons.enable_amp": "Activer l'AMP",
+                      "buttons.expand_text": "Agrandissez votre texte",
+                      "buttons.filter": "Filtrer",
+                      "buttons.fix_spelling_grammar": "Corrigez l'orthographe et la grammaire",
+                      "buttons.frame": "Cadre",
+                      "buttons.generate": "Générer",
+                      "buttons.generate_images": "Générer des images",
+                      "buttons.get_suggestions": "Obtenir des suggestions",
+                      "buttons.history": "Historique",
+                      "buttons.make_it_formal": "Faites preuve de politesse",
+                      "buttons.make_it_friendly": "Faites preuve de familiarité",
+                      "buttons.merge": "Fusionner",
+                      "buttons.mobile": "Mobile",
+                      "buttons.more_options": "Plus d'options",
+                      "buttons.next": "Suivant",
+                      "buttons.open": "Ouvrir",
+                      "buttons.regenerate": "Régénérer",
+                      "buttons.remove_column": "Retirer une colonne",
+                      "buttons.rephrase_text": "Reformulez votre texte",
+                      "buttons.reset": "Réinitialisez",
+                      "buttons.reset_value": "Valeur de réinitialisation",
+                      "buttons.resize": "Redimensionner",
+                      "buttons.save": "Sauvegarder",
+                      "buttons.see_magic": "Voir la magie",
+                      "buttons.select": "Sélectionner",
+                      "buttons.shape": "Forme",
+                      "buttons.shapes": "Formes",
+                      "buttons.show_fewer_options": "Afficher moins d'options",
+                      "buttons.show_more_options": "Afficher plus d'options",
+                      "buttons.sticker": "Autocollant",
+                      "buttons.stickers": "Autocollants",
+                      "buttons.summarize_text": "Résumez votre texte",
+                      "buttons.tablet": "Tablette",
+                      "buttons.transform": "Transformer",
+                      "buttons.try_again": "Essayer à nouveau",
+                      "buttons.update_field": "Actualiser le champ",
+                      "buttons.upload": "Télécharger",
+                      "buttons.upload_image": "Envoyer une image",
+                      "buttons.use_image": "Utiliser l'image",
+                      "buttons.use_prompt": "Utiliser l'invitation",
+                      "buttons.zoom": "Agrandir",
+                      "collaboration.add_comment": "Ajoutez un commentaire",
+                      "collaboration.empty.subtitle": "Sélectionnez un composant pour ajouter un commentaire",
+                      "collaboration.empty.title": "La collaboration d'équipe en toute simplicité !",
+                      "collaboration.empty_filtered.subtitle": "Faites correspondre vos filtres",
+                      "collaboration.empty_filtered.title": "Aucune discussion trouvée",
+                      "collaboration.exit_mode": "Fermer les commentaires",
+                      "collaboration.filters.all": "Tout",
+                      "collaboration.filters.only_yours": "Uniquement vôtre",
+                      "collaboration.filters.resolved": "Résolu",
+                      "collaboration.follow_docs_to_setup": "Suivez les documents pour établir une collaboration d'équipe",
+                      "collaboration.leave_repply": "Laissez une réponse",
+                      "collaboration.login_to_collaborate": "Vous devez être connecté pour pouvoir collaborer.",
+                      "collaboration.panel.threads": "Discussions",
+                      "collaboration.replies.one": "1 réponse",
+                      "collaboration.replies.n": "{n} réponses",
+                      "collaboration.replies.none": "Aucune réponse",
+                      "collaboration.resolve": "Résolvez",
+                      "collaboration.resolved": "Résolu",
+                      "collaboration.types.feedback": "Commentaires",
+                      "collaboration.types.idea": "Idée",
+                      "collaboration.types.question": "Question",
+                      "collaboration.types.urgent": "Urgent",
+                      "colors.black": "Noir",
+                      "colors.ruby": "Rubis",
+                      "colors.white": "Blanc",
+                      "content_tools.button": "Bouton",
+                      "content_tools.carousel": "Carrousel",
+                      "content_tools.columns": "Colonnes",
+                      "content_tools.divider": "Séparateur",
+                      "content_tools.form": "Formulaire",
+                      "content_tools.heading": "Titre",
+                      "content_tools.html": "HTML",
+                      "content_tools.image": "Image",
+                      "content_tools.menu": "Menu",
+                      "content_tools.page_break": "Saut de page",
+                      "content_tools.social": "Social",
+                      "content_tools.text": "Texte",
+                      "content_tools.timer": "Minuteur",
+                      "content_tools.video": "Vidéo",
+                      "editor.action_type.label": "Type d'action",
+                      "editor.align.label": "Alignement",
+                      "editor.alignment.label": "Alignements",
+                      "editor.all_sides.label": "Tous les côtés",
+                      "editor.alternate_text.label": "Texte alternatif",
+                      "editor.anchor.section_already_exists": "Une section de page avec ce nom existe déjà.",
+                      "editor.background_color.label": "Couleur de fond",
+                      "editor.background_image.container_width": "Largeur du conteneur",
+                      "editor.background_image.label": "Image de fond",
+                      "editor.background_image.repeat": "Répéter",
+                      "editor.border.dashed": "Pointillé (tiret)",
+                      "editor.border.dotted": "Pointillé (point)",
+                      "editor.border.label": "Bordure",
+                      "editor.border.solid": "Continu",
+                      "editor.bottom.label": "Bas",
+                      "editor.bottom_center.label": "En bas au centre",
+                      "editor.bottom_left.label": "Inférieur gauche",
+                      "editor.bottom_right.label": "Inférieur droit",
+                      "editor.button_link.label": "Lien du bouton",
+                      "editor.center.label": "Centre",
+                      "editor.center_left.label": "Centre gauche",
+                      "editor.center_right.label": "Centre droit",
+                      "editor.color.brand_colors": "Couleurs de la marque",
+                      "editor.color.common_colors": "Couleurs communes",
+                      "editor.color.label": "Couleur",
+                      "editor.color.template_colors": "Couleurs du modèle",
+                      "editor.colors.label": "Couleurs",
+                      "editor.columns_background.label": "Fond des colonnes",
+                      "editor.container_padding.label": "Marges internes",
+                      "editor.content_alignment.label": "Alignement du contenu",
+                      "editor.content_background_color.label": "Couleur d'arrière-plan pour les contenus",
+                      "editor.content_width.label": "Largeur du contenu",
+                      "editor.desktop.description": "Vous effectuez actuellement des modifications pour les appareils de bureau. Changez pour toutes les options de style.",
+                      "editor.digits_color.label": "Couleur des chiffres",
+                      "editor.digits_font.label": "Police des chiffres",
+                      "editor.digits_font_size.label": "Taille de la police des chiffres",
+                      "editor.do_not_stack_on_mobile.label": "Ne pas empiler sur mobile",
+                      "editor.end_time.label": "Heure de fin",
+                      "editor.fields.label": "Champs",
+                      "editor.font_family.label": "Police de caractère",
+                      "editor.font_size.label": "Taille de police",
+                      "editor.font_weight.100": "Fin",
+                      "editor.font_weight.200": "Extra léger",
+                      "editor.font_weight.300": "Léger",
+                      "editor.font_weight.400": "Régulier",
+                      "editor.font_weight.500": "Moyen",
+                      "editor.font_weight.600": "Semi-gras",
+                      "editor.font_weight.700": "Gras",
+                      "editor.font_weight.800": "Extra gras",
+                      "editor.font_weight.900": "Noir",
+                      "editor.font_weight.label": "Poids de la police",
+                      "editor.form.custom": "Personnalisé",
+                      "editor.form.method": "Méthode",
+                      "editor.form_alignment.label": "Alignement du formulaire",
+                      "editor.form_width.label": "Largeur du formulaire",
+                      "editor.full_width.label": "Largeur totale",
+                      "editor.heading_type.label": "Type de titre",
+                      "editor.height.label": "Hauteur",
+                      "editor.hide_on_desktop.label": "Cacher sur le bureau",
+                      "editor.hide_on_mobile.label": "Masquer sur mobile",
+                      "editor.hide_on_tablet.label": "Cacher sur une tablette",
+                      "editor.hover_background.label": "Couleur de l'arrière-plan au survol",
+                      "editor.hover_color.label": "Couleur du survol",
+                      "editor.hover_text.label": "Couleur du texte au survol",
+                      "editor.hover_underline.label": "Soulignement en survol",
+                      "editor.icon_size.label": "Taille de l'icône",
+                      "editor.icon_spacing.label": "Espacement entre les icônes",
+                      "editor.icon_type.label": "Type d'icône",
+                      "editor.image.added_drawing": "Ajouté : dessin",
+                      "editor.image.added_frame": "Ajouté : cadre",
+                      "editor.image.added_overlay_image": "Ajouté : image superposée",
+                      "editor.image.added_shape": "Ajouté : forme",
+                      "editor.image.added_sticker": "Ajouté : autocollant",
+                      "editor.image.added_text": "Ajouté : texte",
+                      "editor.image.applied_crop": "Appliqué : rogner",
+                      "editor.image.applied_filter": "Appliqué : filtre",
+                      "editor.image.applied_resize": "Appliqué : redimensionner",
+                      "editor.image.applied_rounded_corners": "Appliqué : coins arrondis",
+                      "editor.image.applied_transform": "Appliqué : transformer",
+                      "editor.image.auto": "Automatique",
+                      "editor.image.auto_width": "Largeur automatique",
+                      "editor.image.auto_width_switch_off": "Désactiver la largeur automatique pour redimensionner manuellement l'image",
+                      "editor.image.brush_color": "Couleur de la brosse",
+                      "editor.image.brush_size": "Taille de la brosse",
+                      "editor.image.brush_type": "Type de brosse",
+                      "editor.image.canvas_background": "Arrière-plan de toile",
+                      "editor.image.changed_background": "Modifié : arrière-plan",
+                      "editor.image.changed_background_image": "Modifié : image d'arrière-plan",
+                      "editor.image.changed_style": "Modifié : style",
+                      "editor.image.drop_or_upload": "Déposer ou télécharger",
+                      "editor.image.drop_upload": "Déposez une nouvelle image ici ou cliquez pour sélectionner les fichiers à télécharger.",
+                      "editor.image.full_width_mobile": "Pleine largeur sur mobile",
+                      "editor.image.image_options": "Options de l'image",
+                      "editor.image.image_url": "URL de l'image",
+                      "editor.image.initial": "Début",
+                      "editor.image.label": "Image",
+                      "editor.image.loaded_state": "Chargé : état",
+                      "editor.image.maintain_aspect_ratio": "Conserver le rapport d'aspect",
+                      "editor.image.main_image": "Image principale",
+                      "editor.image.objects_merged": "Objets : fusionnés",
+                      "editor.image.offset_x": "Offset X",
+                      "editor.image.offset_y": "Offset Y",
+                      "editor.image.outline_width": "Largeur de la bordure",
+                      "editor.image.uploading": "Envoi en cours...",
+                      "editor.image.upload_error": "Une erreur s'est produite lors du téléchargement de votre image. Assurez-vous qu'il s'agit d'un fichier image valide avec une taille sous {mbSize} Mo.",
+                      "editor.image.use_percentages": "Utiliser les pourcentages",
+                      "editor.image_link.label": "Lien de l'image",
+                      "editor.image_size.label": "Taille de l'image",
+                      "editor.inherit_body_styles.label": "Hériter des corps de texte",
+                      "editor.labels.missing_languages": "Langues manquantes",
+                      "editor.labels.try_it_now": "Essayez-le maintenant !",
+                      "editor.labels.web": "Web",
+                      "editor.labels_color.label": "Couleur des étiquettes",
+                      "editor.labels_font.label": "Police des étiquettes",
+                      "editor.labels_font_size.label": "Taille de la police des étiquettes",
+                      "editor.layout.label": "Mise en page",
+                      "editor.left.label": "Gauche",
+                      "editor.letter_spacing.label": "Espacement des lettres",
+                      "editor.line.label": "Ligne",
+                      "editor.line_height.label": "Hauteur de la ligne",
+                      "editor.link.body": "Corps",
+                      "editor.link.call_phone": "Appeler le numéro de téléphone",
+                      "editor.link.close_popup": "Fermer la fenêtre contextuelle",
+                      "editor.link.email": "E-mail",
+                      "editor.link.mailto": "Envoyer à",
+                      "editor.link.new_tab": "Nouvel onglet",
+                      "editor.link.no_page_sections_found": "Aucune section de page trouvée",
+                      "editor.link.onclick_unsupported": "OnClick n'est pas pris en charge",
+                      "editor.link.open_website": "Ouvrir le site Web",
+                      "editor.link.page_section": "Aller à la section de page",
+                      "editor.link.phone": "Téléphone",
+                      "editor.link.same_tab": "Même onglet",
+                      "editor.link.selection_limit_exceeded": "La limite des articles sélectionnés a été atteinte",
+                      "editor.link.send_email": "Envoyer un e-mail",
+                      "editor.link.send_sms": "Envoyer un SMS",
+                      "editor.link.subject": "Objet",
+                      "editor.link.target": "Cible",
+                      "editor.link.url": "URL",
+                      "editor.link_color.label": "Couleur du lien",
+                      "editor.magic_image.almost_there": "On y est presque",
+                      "editor.magic_image.analyzing_your_prompt": "Analyse de votre invite",
+                      "editor.magic_image.choose_style": "Choisir le style",
+                      "editor.magic_image.choose_style_description": "Choisissez un thème pour l'image générée. Il peut inclure des noms d'artistes (Picasso, etc.) ou des styles personnalisés tels que fantastique, détaillé, moderne, contemporain, etc.",
+                      "editor.magic_image.describe_image": "Décrivez en détail ce que vous souhaitez créer avec l'IA.",
+                      "editor.magic_image.enable_ai.heading": "Laisser l'IA créer des images",
+                      "editor.magic_image.enable_ai.text": "Obtenez les images uniques et personnalisées idéales pour votre conception avec l'IA.",
+                      "editor.magic_image.first_experience.text": "Obtenez l'image idéale avec l'IA. Qu'il s'agisse d'un ballon sur la plage ou d'un homme remplissant un formulaire, il suffit d'appuyer sur l'image pour la créer !",
+                      "editor.magic_image.first_experience.title": "Laisser {ai} Créer des images",
+                      "editor.magic_image.generating_images": "Génération d'images",
+                      "editor.magic_image.generating_images_for": "Générer des images pour :",
+                      "editor.magic_image.modal_title": "Images magiques par {ai}",
+                      "editor.magic_image.no_suggestions": "Aucune suggestion",
+                      "editor.magic_image.prompt_placeholder": "Une tortue nageant sous l'eau, peinture expressionniste",
+                      "editor.magic_image.prompt_score_good": "😊 Ça a l'air bien ! Votre message semble suffisant pour générer de belles images.",
+                      "editor.magic_image.prompt_score_info": "💡 Il s'agit de la note obtenue à l'issue de l'exercice. Utilisez des mots significatifs et décrivez la scène en détail pour obtenir de meilleurs résultats.",
+                      "editor.magic_image.prompt_score_not_good": "😕 Votre score n'est pas assez bon. Essayez des mots plus significatifs et décrivez la scène en détail autant que possible.",
+                      "editor.magic_image.prompt_style_suffix": "{style} style",
+                      "editor.magic_image.sample_prompt.computer": "Un ordinateur des années 90 dans le style vaporwave",
+                      "editor.magic_image.sample_prompt.david_sculpture": "Une photo de la sculpture de David de Michel-Ange portant un casque d'écoute djing",
+                      "editor.magic_image.sample_prompt.samoyed": "Photo d'un chien samoyède tirant la langue à un chat siamois blanc",
+                      "editor.magic_image.sample_prompt.van_gogh": "Une peinture de style van Gogh représentant un joueur de football américain",
+                      "editor.magic_image.stock_list.text": "Obtenez l'image parfaite grâce à l'IA. Écrivez ce que vous voulez et l'IA se chargera de le créer pour vous.",
+                      "editor.magic_image.styles.3d_illustration": "Illustration 3D",
+                      "editor.magic_image.styles.flat_art": "Art plat",
+                      "editor.magic_image.styles.geometric": "Géométrique",
+                      "editor.magic_image.styles.lettering": "Lettrage",
+                      "editor.magic_image.styles.minimalism": "Minimalisme",
+                      "editor.magic_image.styles.psychedelic": "Psychédélique",
+                      "editor.magic_image.styles.realism": "Réalisme",
+                      "editor.magic_image.styles.retro_vintage": "Rétro/Vintage",
+                      "editor.magic_image.styles.surrealism": "Surréalisme",
+                      "editor.magic_image.styles.vector": "Vecteur",
+                      "editor.magic_image.suggested_prompts": "Suggestions d'invites",
+                      "editor.magic_image.suggested_prompts_description": "L'IA a généré des invites basées sur vos données pour vous aider à obtenir de meilleures images. Choisissez l'une des options suivantes ou poursuivez avec votre saisie initiale :",
+                      "editor.magic_image.text_prompt": "Votre texte d'invitation",
+                      "editor.magic_image.the_prompt": "L'invitation",
+                      "editor.magic_image.uploading_your_image": "Chargement de votre image",
+                      "editor.magic_image.utilize_ai_created_images": "Utilisez des images *créées par IA* qui sont totalement uniques et inédites.",
+                      "editor.margin.label": "Marges",
+                      "editor.mobile.description": "Vous éditez actuellement pour les appareils mobiles. Passez à l'option Bureau pour toutes les options de style.",
+                      "editor.offline_mode_is_enabled": "Le mode hors ligne est activé",
+                      "editor.padding.label": "Marges internes",
+                      "editor.placeholder.text": "Pas de contenu ici. Faites glisser le contenu de droite.",
+                      "editor.placeholder.text.left": "Aucun contenu ici. Faites glisser le contenu de la gauche.",
+                      "editor.placeholder.text.small": "Il n'y a pas de contenu ici.",
+                      "editor.play_icon_color.label": "Couleur de l'icône de lecture",
+                      "editor.play_icon_size.label": "Taille de l'icône de lecture",
+                      "editor.play_icon_type.label": "Type d'icône de lecture",
+                      "editor.preheader_text.description": "Le pré-en-tête est le bref résumé du texte qui suit la ligne d'objet lorsque vous affichez un e-mail dans la boîte de réception.",
+                      "editor.preheader_text.label": "Texte de pré-en-tête",
+                      "editor.right.label": "Droite",
+                      "editor.rounded_border.label": "Arrondi de la bordure",
+                      "editor.section_name.description": "Le nom de section est utilisé pour créer des liens à l'intérieur de la page. Il sert d'ancre pour les boutons ou les liens.",
+                      "editor.section_name.label": "Nom de section",
+                      "editor.select_image.label": "Sélectionner l'image",
+                      "editor.separator.label": "Séparateur",
+                      "editor.smart_buttons.enable_ai.heading": "Activer l'IA",
+                      "editor.smart_buttons.enable_ai.text": "Essayez notre magie IA sur cette touche. Voyez ce qui fonctionne le mieux ici !",
+                      "editor.smart_buttons.first_experience.text": "Obtenez des suggestions basées sur {ai} pour vos touches, selon la tonalité de votre choix.",
+                      "editor.smart_buttons.first_experience.title": "Touches intelligentes",
+                      "editor.smart_headings.alternate_suggestions": "Suggestions alternatives par rapport à votre texte",
+                      "editor.smart_headings.enable_ai.text": "Essayez notre magie de l'IA sur ce titre. Découvrez ce qui fonctionne le mieux ici !",
+                      "editor.smart_headings.error.min_words": "{n} mots requis minimum",
+                      "editor.smart_headings.error.text": "Notre IA est incapable de comprendre votre titre. Essayez avec d'autres mots.",
+                      "editor.smart_headings.error.title": "Échec du tour de magie",
+                      "editor.smart_headings.first_experience.after": "Les promotions ont commencé !",
+                      "editor.smart_headings.first_experience.before": "Achetez autant que possible !",
+                      "editor.smart_headings.first_experience.text": "Obtenez des suggestions basées sur {ai} pour vos titres dans la tonalité que vous voulez !",
+                      "editor.smart_headings.first_experience.title": "Titres intelligents",
+                      "editor.smart_headings.heading_text": "Texte d'en-tête",
+                      "editor.smart_headings.no_result": "Vous n'avez pas trouvé ce que vous cherchiez ?",
+                      "editor.smart_headings.outdated_text": "Il semble que vous ayez mis à jour le texte et qu'il y ait de nouvelles suggestions pour celui-ci.",
+                      "editor.smart_headings.set_tone": "Définir la tonalité",
+                      "editor.smart_headings.type_few_words": "Tapez quelques mots pour que notre I.A. puisse vous aider avec des suggestions.",
+                      "editor.smart_text.ai_enhance_text": "Utilisez l'IA pour améliorer la qualité de votre écriture.",
+                      "editor.smart_text.text_empty": "Le texte ne doit pas rester vide",
+                      "editor.social_links.label": "Liens sociaux",
+                      "editor.space_between_fields.label": "Espace entre les champs",
+                      "editor.submit_action.label": "Soumettre l'action",
+                      "editor.tablet.description": "Vous effectuez actuellement des modifications pour les tablettes. Changez pour toutes les options de style.",
+                      "editor.text.label": "Texte",
+                      "editor.text_align.label": "Alignement du texte",
+                      "editor.text_color.label": "Couleur du texte",
+                      "editor.top.label": "Haut",
+                      "editor.top_center.label": "En haut au centre",
+                      "editor.top_left.label": "Supérieur gauche",
+                      "editor.top_right.label": "Supérieur droit",
+                      "editor.underline.label": "Soulignement",
+                      "editor.video.arrow_only": "Flèche uniquement",
+                      "editor.video.video_camera": "Caméra vidéo",
+                      "editor.video_url.description": "Ajoutez une URL YouTube ou Vimeo pour générer automatiquement une image de prévisualisation, qui mènera vers l'URL fournie.",
+                      "editor.video_url.label": "URL de la vidéo",
+                      "editor.width.label": "Largeur",
+                      "editors_panel.title.content": "Contenu",
+                      "editors_panel.title.contents": "Contenus",
+                      "editors_panel.title.magic_image": "Image magique",
+                      "editors_panel.title.rows": "Lignes",
+                      "fields.birthday": "Anniversaire",
+                      "fields.company": "Entreprise",
+                      "fields.name": "Nom",
+                      "fields.phone_number": "Numéro de téléphone",
+                      "fields.website": "Site Internet",
+                      "fields.zip_code": "Code postal",
+                      "inbox_preview.design_updated": "La modèle a été mis à jour après votre dernière génération d'aperçu",
+                      "labels.ai": "IA",
+                      "labels.ai_assisted": "IA assistée",
+                      "labels.alignment.bottom": "En bas",
+                      "labels.alignment.center": "Au centre",
+                      "labels.alignment.flex_end": "Fin",
+                      "labels.alignment.flex_start": "Début",
+                      "labels.alignment.justify": "Justifier",
+                      "labels.alignment.left": "À gauche",
+                      "labels.alignment.right": "À droite",
+                      "labels.alignment.top": "En haut",
+                      "labels.align_text": "Aligner le texte",
+                      "labels.auto_off": "Arrêt automatique",
+                      "labels.auto_on": "Activation automatique",
+                      "labels.blur": "Flou",
+                      "labels.category": "Catégorie",
+                      "labels.change_language": "Changer de langue",
+                      "labels.characters": "caractères",
+                      "labels.color_picker": "Palette de couleurs",
+                      "labels.comments": "Commentaires",
+                      "labels.contain": "Contient",
+                      "labels.content": "Contenu",
+                      "labels.cover": "Couvercle",
+                      "labels.custom": "Douane",
+                      "labels.dark_mode": "Mode sombre",
+                      "labels.description": "Description",
+                      "labels.desktop_preview": "Aperçu bureau",
+                      "labels.device_override": "Certaines valeurs sont modifiées en fonction de la taille de l'écran de l'appareil",
+                      "labels.disable_dark_mode": "Désactiver le mode sombre",
+                      "labels.dismiss": "Renvoyer",
+                      "labels.display_conditions": "Conditions d'affichage",
+                      "labels.dynamic_content_enabled": "Contenu dynamique autorisé",
+                      "labels.editor": "Éditeur",
+                      "labels.enable_dark_mode": "Activer le mode sombre",
+                      "labels.font": "Police",
+                      "labels.footer": "Pied de page",
+                      "labels.format_text": "Formater le texte",
+                      "labels.generated_images": "Images générées",
+                      "labels.generate_ai": "Générer avec l'IA",
+                      "labels.generating": "Production",
+                      "labels.google_fonts": "Polices Google",
+                      "labels.gradient": "Dégradé",
+                      "labels.header": "En-tête",
+                      "labels.hide": "Masquer",
+                      "labels.horizontal": "Horizontal",
+                      "labels.language": "Langue",
+                      "labels.light_mode": "Mode lumineux",
+                      "labels.loading": "Chargement",
+                      "labels.loading_images": "Chargement des photos",
+                      "labels.load_more": "Afficher plus",
+                      "labels.menu.label": "Étiquette",
+                      "labels.menu.links": "Liens du menu",
+                      "labels.merge_tags": "Fusionner les balises",
+                      "labels.mobile_preview": "Aperçu mobile",
+                      "labels.more_images": "Plus d'images",
+                      "labels.new": "Nouveauté :",
+                      "labels.none": "Aucun",
+                      "labels.no_images": "Aucune image",
+                      "labels.no_results": "Aucun résultat",
+                      "labels.objects": "Objets",
+                      "labels.outline": "Contour",
+                      "labels.page": "Page",
+                      "labels.position": "Position",
+                      "labels.radius": "Rayon",
+                      "labels.recents": "Récents",
+                      "labels.redo": "Rétablir",
+                      "labels.refresh": "Rafraîchir",
+                      "labels.refresh_results": "Actualiser les résultats",
+                      "labels.resolution": "Résolution",
+                      "labels.safe_search": "Recherche sécurisée",
+                      "labels.search": "Rechercher",
+                      "labels.search_images": "Recherchez parmi des millions de photos",
+                      "labels.search_images_by_name": "Recherche d'images par nom",
+                      "labels.section": "Section",
+                      "labels.select_tone": "Sélectionner le ton",
+                      "labels.shadow": "Ombre",
+                      "labels.show": "Afficher",
+                      "labels.size": "Taille",
+                      "labels.size.unit.auto": "Auto",
+                      "labels.smart_text": "Texte intelligent",
+                      "labels.something_went_wrong": "Une erreur s'est produite",
+                      "labels.some_examples": "Quelques exemples",
+                      "labels.special_links": "Liens spéciaux",
+                      "labels.stock_photos": "Photos d'archives",
+                      "labels.stock_photos_by": "Produit par Unsplash, Pexels, Pixabay.",
+                      "labels.stock_photos_license": "Toutes les photos sont sous licence Creative Commons Zero.",
+                      "labels.stop": "Arrêtez",
+                      "labels.tags": "Tags",
+                      "labels.texture": "Texture",
+                      "labels.text_style": "Style de texte",
+                      "labels.timezone": "Fuseau horaire",
+                      "labels.tip": "Conseil",
+                      "labels.tone": "Ton",
+                      "labels.undo": "Annuler",
+                      "labels.vertical": "Vertical",
+                      "labels.words": "mots",
+                      "modals.category.invalid": "Nom de catégorie invalide",
+                      "modals.category.placeholder": "Nom de la catégorie",
+                      "modals.delete.columns": "Vous allez perdre {columns, number} {columns, plural, one {colonne} other {colonnes}}. Êtes-vous sûr?",
+                      "modals.delete.confirmation": "Êtes-vous sûr de vouloir supprimer ceci ? Cette action ne peut pas être annulée.",
+                      "modals.delete.title": "Supprimer",
+                      "modals.display_conditions.title": "Choisissez une condition d'affichage",
+                      "modals.preview.browser_preview.label": "Navigateur",
+                      "modals.preview.exit_preview": "Quitter l'aperçu",
+                      "modals.preview.inbox_preview.button.generate_previews": "Générez des aperçus",
+                      "modals.preview.inbox_preview.label": "Boîte de réception",
+                      "modals.preview.inbox_preview.label.generating_again": "Générez à nouveau",
+                      "modals.preview.inbox_preview.label.generating_previews": "Génération d'aperçus en cours",
+                      "modals.preview.inbox_preview.text.email_clients": "Clients de messagerie",
+                      "modals.preview.inbox_preview.text.generate_previews": "Vérifiez quel aspect aura votre modèle dans la boîte de réception de différents appareils et services de messagerie.",
+                      "modals.preview.inbox_preview.text.sync": "Resynchronisation",
+                      "modals.preview.inbox_preview.title": "Aperçu de la boîte de réception",
+                      "modals.preview.inbox_preview.tooltip.title": "Aperçu de l'e-mail sur différents clients de messagerie",
+                      "modals.preview.inbox_preview.try_again": "Impossible de générer des aperçus cette fois-ci. Veuillez réessayer de générer des aperçus.",
+                      "modals.preview.inbox_preview.unavailable": "Aucun aperçu disponible, veuillez réessayer.",
+                      "modals.preview.send_test_email.email_not_sent": "E-mail non envoyé",
+                      "modals.preview.send_test_email.email_sent": "E-mail envoyé",
+                      "modals.preview.send_test_email.label": "Envoyer un e-mail de test",
+                      "modals.preview.send_test_email.on_the_way": "Votre e-mail de test a été envoyé à {email}",
+                      "modals.preview.send_test_email.sending": "Envoi",
+                      "modals.preview.send_test_email.unexpected": "Une erreur est survenue lors de l'envoi de l'e-mail de test. Réessayez.",
+                      "modals.preview.title": "Aperçu",
+                      "modals.save_block.title": "Sauvegarder le bloc",
+                      "modals.tags.description": "Les tags sont utilisés pour la recherche. Les tags multiples peuvent être séparés par une virgule.",
+                      "modals.tags.placeholder": "tag1, tag2",
+                      "option_groups.action.title": "Action",
+                      "option_groups.all.title": "Tout",
+                      "option_groups.background.title": "Arrière-plan",
+                      "option_groups.blank.title": "Vide",
+                      "option_groups.button.title": "Bouton",
+                      "option_groups.button_options.title": "Options du bouton",
+                      "option_groups.colors.title": "Couleurs",
+                      "option_groups.columns.title": "Les colonnes",
+                      "option_groups.column_number.title": "Colonne {number}",
+                      "option_groups.column_properties.title": "Propriétés de la colonne",
+                      "option_groups.countdown.title": "Compte à rebours",
+                      "option_groups.default.title": "Général",
+                      "option_groups.display_condition.title": "Condition d'affichage",
+                      "option_groups.email_settings.title": "Paramètres d'e-mail",
+                      "option_groups.fields.title": "Champs",
+                      "option_groups.form.title": "Formulaire",
+                      "option_groups.html.title": "HTML",
+                      "option_groups.icons.title": "Icônes",
+                      "option_groups.image.title": "Image",
+                      "option_groups.labels.title": "Labels",
+                      "option_groups.last_saved.title": "Dernièrement enregistré",
+                      "option_groups.layout.title": "Disposition",
+                      "option_groups.line.title": "Ligne",
+                      "option_groups.link.title": "Lien",
+                      "option_groups.links.title": "Liens",
+                      "option_groups.magic_image.title": "Image magique",
+                      "option_groups.menu_items.title": "Éléments de menu",
+                      "option_groups.mobile.title": "Mobile",
+                      "option_groups.responsive_design.title": "Site web adaptatif",
+                      "option_groups.row_properties.title": "Propriétés de la ligne",
+                      "option_groups.size.title": "Taille",
+                      "option_groups.smart_buttons.title": "Touches intelligentes",
+                      "option_groups.smart_headings.title": "Titres intelligents",
+                      "option_groups.spacing.title": "Espacement",
+                      "option_groups.styles.title": "Styles",
+                      "option_groups.text.title": "Texte",
+                      "shapes.circle": "Cercle",
+                      "shapes.rectangle": "Rectangle",
+                      "shapes.round": "Rond",
+                      "shapes.square": "Carré",
+                      "sizes.large": "Grand",
+                      "sizes.largest": "Le plus grand",
+                      "sizes.medium": "Moyen",
+                      "sizes.small": "Petit",
+                      "sizes.smallest": "Moindre",
+                      "tabs.audit.empty.description": "L'audit est l'endroit où vous pouvez voir tous les problèmes de votre conception et votre contenu.",
+                      "tabs.audit.empty.subtitle": "C'est parfait.",
+                      "tabs.audit.empty.title": "Aucun problème n'a été détecté !",
+                      "tabs.audit.missing_image_src": "URL d'image manquante",
+                      "tabs.audit.missing_title": "Titre de l'audit manquant",
+                      "tabs.audit.missing_tool_name": "Nom de l'outil introuvable",
+                      "tabs.audit.rules.button.empty_links.description": "Sans lien, les boutons ne fonctionneront pas lorsqu'un utilisateur cliquera dessus. Ajoutez un lien aux boutons suivants.",
+                      "tabs.audit.rules.button.empty_links.title": "Les liens des boutons sont vides",
+                      "tabs.audit.rules.image.alt_text.description": "Sans texte alternatif, les personnes qui utilisent des lecteurs d'écran ne peuvent pas accéder aux informations sur les images. Rédigez un texte alternatif adéquat pour les images suivantes.",
+                      "tabs.audit.rules.image.alt_text.title": "Texte alternatif manquant",
+                      "tabs.audit.rules.image.url.description": "Sans URL d'image, les images suivantes ne seront pas affichées. Mettez une image en ligne pour les images suivantes.",
+                      "tabs.audit.rules.image.url.title": "Images manquantes",
+                      "tabs.audit.rules.menu.empty_links.description": "Sans lien, le menu ne fonctionnera pas lorsqu'un utilisateur cliquera dessus. Ajoutez les liens manquants au menu suivant.",
+                      "tabs.audit.rules.menu.empty_links.title": "Les liens de menu sont vides",
+                      "tabs.audit.take_me_to_fix": "Emmenez-moi à la réparation",
+                      "tones.bold": "Audacieux",
+                      "tones.friendly": "Amical",
+                      "tones.luxury": "Luxueux",
+                      "tones.professional": "Professionnel",
+                      "tones.relaxed": "Détendu",
+                      "tones.witty": "Humoristique",
+                      "tools.form.field_label": "Étiquette du champ",
+                      "tools.form.field_name": "Nom du champ",
+                      "tools.form.field_type": "Type de champ",
+                      "tools.form.field_value": "Valeur du champ",
+                      "tools.form.new_field": "Nouveau champ",
+                      "tools.form.options_one_per_line": "Options (une par ligne)",
+                      "tools.form.placeholder_text": "Espace réservé de texte",
+                      "tools.form.required_field": "Champ requis",
+                      "tools.form.show_label": "Afficher l'étiquette",
+                      "tools.form.update_field": "Actualiser le champ",
+                      "tools.social.click_icons_to_add": "Cliquez sur les icônes pour ajouter",
+                      "tools.tabs.audit": "Audit",
+                      "tools.tabs.blocks": "Blocs",
+                      "tools.tabs.body": "Corps",
+                      "tools.tabs.content": "Contenu",
+                      "tools.tabs.images": "Photos",
+                      "tools.tabs.row": "Ligne",
+                      "tools.tabs.uploads": "Téléchargements",
+                      "tools.text.personalize": "Personnaliser",
+                      "tools.tooltip.drag_on_canvas": "Glisser sur la toile",
+                      "tools.tooltip.got_it": "J'ai compris"
+                  },
+                },
+                // Disable HTML tool
+                tools: {
+                  html: {
+                    enabled: false,
+                  },
+                },
+                // Custom merge tags in French
+                mergeTags: [
+                  { name: "Prénom", value: "{{firstName}}" },
+                  { name: "Nom", value: "{{lastName}}" },
+                  { name: "Email", value: "{{email}}" },
+                  { name: "Lien de désabonnement", value: "{{unsubscribeLink}}" },
+                  { name: "Version web", value: "{{webVersionLink}}" },
+                ],
+                // Force editor height and layout
+                customCSS: `
+                  .unlayer-editor {
+                    height: 100vh !important;
+                    min-height: 100vh !important;
+                  }
+                  .unlayer-editor iframe {
+                    height: 100% !important;
+                    min-height: 100% !important;
+                  }
+                  #editor-container {
+                    height: 100% !important;
+                    min-height: 100% !important;
+                  }
+                `,
+              }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

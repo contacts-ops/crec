@@ -1,0 +1,39 @@
+{
+  "name": "Admin Blog Template",
+  "description": "Interface d'administration pour la gestion des articles de blog",
+  "version": "1.0.0",
+  "type": "admin",
+  "service": "admin",
+  "author": "Majoli.io",
+  "features": [
+    "Gestion des articles",
+    "Génération automatique d'articles basée sur des mots-clés",
+    "Génération automatique d'images SVG personnalisées",
+    "Intégration des informations de l'entreprise",
+    "Statistiques de vues et likes",
+    "Recherche et filtrage",
+    "États des articles (publié, brouillon, archivé)",
+    "Interface responsive",
+    "Données factices pour démonstration"
+  ],
+  "props": {
+    "siteId": {
+      "type": "string",
+      "description": "ID du site pour récupérer les données",
+      "required": false
+    },
+    "editableElements": {
+      "type": "object",
+      "description": "Éléments éditables du template",
+      "required": false
+    }
+  },
+  "dependencies": [
+    "lucide-react",
+    "react",
+    "typescript"
+  ],
+  "screenshots": [
+    "/placeholder.svg"
+  ]
+}

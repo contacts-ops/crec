@@ -1,0 +1,58 @@
+{
+  "id": "monCompteTemplate",
+  "name": "Mon Compte Template",
+  "type": "admin",
+  "service": "admin",
+  "thumbnail": "/placeholder.svg",
+  "description": "Interface de gestion de compte utilisateur avec modification des informations personnelles, gestion des paiements et historique des messages",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "label": "ID du site",
+      "default": "",
+      "required": true
+    },
+    "userId": {
+      "type": "string",
+      "label": "ID de l'utilisateur",
+      "default": "",
+      "required": true
+    }
+  },
+  "editableElements": [
+    {
+      "id": "mon-compte-title",
+      "type": "text",
+      "label": "Titre de la page",
+      "default": "Mon Compte"
+    },
+    {
+      "id": "mon-compte-subtitle",
+      "type": "text",
+      "label": "Sous-titre",
+      "default": "Gestion de votre compte"
+    }
+  ],
+  "features": [
+    "Modification des informations personnelles",
+    "Gestion des moyens de paiement",
+    "Historique des factures",
+    "Messages reçus de l'admin",
+    "Interface responsive",
+    "Sécurité renforcée",
+    "Design moderne",
+    "Navigation intuitive"
+  ],
+  "dependencies": [
+    "react",
+    "typescript",
+    "lucide-react",
+    "tailwindcss"
+  ],
+  "apiEndpoints": [
+    "/api/users/[userId]/profile",
+    "/api/users/[userId]/payment-methods",
+    "/api/users/[userId]/invoices",
+    "/api/users/[userId]/messages"
+  ]
+}

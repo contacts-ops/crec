@@ -1,0 +1,51 @@
+{
+  "id": "adminUsersTemplate",
+  "name": "Admin Template",
+  "type": "admin",
+  "service": "admin",
+  "thumbnail": "/placeholder.svg",
+  "description": "Interface d'administration pour la gestion des utilisateurs du site",
+  "category": "admin",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "label": "ID du site",
+      "default": "",
+      "required": true
+    }
+  },
+  "editableElements": [
+    {
+      "id": "admin-title",
+      "type": "text",
+      "label": "Titre de l'administration",
+      "default": "Gestion des Utilisateurs"
+    },
+    {
+      "id": "admin-subtitle",
+      "type": "text",
+      "label": "Sous-titre",
+      "default": "Gérer les utilisateurs, rôles et permissions"
+    }
+  ],
+  "features": [
+    "Liste des utilisateurs",
+    "Création d'utilisateur",
+    "Modification d'utilisateur",
+    "Suppression d'utilisateur",
+    "Gestion des rôles",
+    "Recherche et filtrage",
+    "Statistiques utilisateurs",
+    "Interface responsive",
+    "Actions CRUD complètes"
+  ],
+  "dependencies": [
+    "lucide-react",
+    "react",
+    "typescript"
+  ],
+  "apiEndpoints": [
+    "/api/users",
+    "/api/sites/[siteId]/users"
+  ]
+}

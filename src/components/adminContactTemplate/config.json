@@ -1,0 +1,45 @@
+{
+  "id": "adminContactTemplate",
+  "name": "Admin Contact Template",
+  "type": "admin",
+  "service": "admin",
+  "version": 1,
+  "description": "Template d'administration pour la gestion des messages de contact",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {
+    "lucide-react": "^0.263.1"
+  },
+  "required": {
+    "primaryColor": true,
+    "secondaryColor": true,
+    "textColor": true,
+    "fontFamily": true
+  },
+  "props": {
+    "primaryColor": {
+      "type": "string",
+      "required": true,
+      "default": "#3B82F6",
+      "label": "Couleur principale"
+    },
+    "secondaryColor": {
+      "type": "string",
+      "required": true,
+      "default": "#1E40AF",
+      "label": "Couleur secondaire"
+    },
+    "textColor": {
+      "type": "string",
+      "required": true,
+      "default": "#1F2937",
+      "label": "Couleur du texte"
+    },
+    "fontFamily": {
+      "type": "string",
+      "required": true,
+      "default": "Inter",
+      "label": "Police"
+    }
+  }
+}

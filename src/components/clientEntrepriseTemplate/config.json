@@ -1,0 +1,106 @@
+{
+  "id": "clientEntrepriseTemplate",
+  "name": "Client Entreprise Template",
+  "type": "admin",
+  "service": "admin",
+  "thumbnail": "/placeholder.svg",
+  "description": "Interface de gestion des informations de l'entreprise et du contrat de domiciliation pour les clients",
+  "category": "client",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "label": "ID du site (optionnel)",
+      "default": "",
+      "required": false
+    },
+    "userId": {
+      "type": "string",
+      "label": "ID de l'utilisateur (optionnel)",
+      "default": "",
+      "required": false
+    },
+    "enableDomiciliationType": {
+      "type": "boolean",
+      "label": "Activer la sélection du type de domiciliation",
+      "default": true,
+      "required": false
+    },
+    "domiciliationTypeTitle": {
+      "type": "string",
+      "label": "Titre de la section type de domiciliation",
+      "default": "Type de domiciliation",
+      "required": false
+    },
+    "domiciliationTypeLabel": {
+      "type": "string",
+      "label": "Label pour la sélection du type de domiciliation",
+      "default": "Choisissez le type de domiciliation",
+      "required": false
+    },
+    "domiciliationTypeCreationLabel": {
+      "type": "string",
+      "label": "Label pour l'option création d'entreprise",
+      "default": "Création d'une nouvelle entreprise",
+      "required": false
+    },
+    "domiciliationTypeChangementLabel": {
+      "type": "string",
+      "label": "Label pour l'option changement de siège",
+      "default": "Changement de siège social",
+      "required": false
+    },
+    "currentSiretLabel": {
+      "type": "string",
+      "label": "Label pour le champ SIRET actuel",
+      "default": "SIRET actuel",
+      "required": false
+    },
+    "currentSiretPlaceholder": {
+      "type": "string",
+      "label": "Placeholder pour le champ SIRET actuel",
+      "default": "123 456 789 00012",
+      "required": false
+    },
+    "currentSiretRequired": {
+      "type": "boolean",
+      "label": "Le SIRET est-il requis pour un changement de siège",
+      "default": true,
+      "required": false
+    }
+  },
+  "editableElements": [
+    {
+      "id": "entreprise-title",
+      "type": "text",
+      "label": "Titre de la page entreprise",
+      "default": "Mon Entreprise"
+    },
+    {
+      "id": "entreprise-subtitle",
+      "type": "text",
+      "label": "Sous-titre",
+      "default": "Informations de votre entreprise et contrat de domiciliation"
+    }
+  ],
+  "features": [
+    "Affichage des informations de l'entreprise",
+    "Gestion du statut d'approbation",
+    "Affichage des documents associés",
+    "Téléchargement du contrat de domiciliation",
+    "Champs non modifiables si approuvé",
+    "Interface responsive",
+    "Gestion des erreurs",
+    "Messages d'état",
+    "Badges de statut",
+    "Icônes pour chaque section"
+  ],
+  "dependencies": [
+    "lucide-react",
+    "react",
+    "typescript"
+  ],
+  "apiEndpoints": [
+    "/api/sharedServices/auth/me",
+    "/api/formulaires"
+  ]
+}

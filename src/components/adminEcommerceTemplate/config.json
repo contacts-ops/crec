@@ -1,0 +1,26 @@
+{
+  "id": "adminEcommerceTemplate",
+  "name": "Admin E-commerce Template",
+  "type": "admin",
+  "service": "admin-ecommerce",
+  "version": 1,
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {
+    "lucide-react": "^0.263.1"
+  },
+  "required": {
+    "siteId": false
+  },
+  "props": {
+    "siteId": {
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "ID du site pour filtrer les produits et catégories"
+    }
+  },
+  "description": "Interface d'administration pour gérer les produits et catégories e-commerce par site",
+  "category": "admin",
+  "tags": ["admin", "ecommerce", "products", "categories", "gestion"]
+}

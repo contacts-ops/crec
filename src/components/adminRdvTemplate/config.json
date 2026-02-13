@@ -1,0 +1,31 @@
+{
+  "id": "adminRdvTemplate",
+  "name": "Admin RDV Template",
+  "type": "admin",
+  "service": "admin-rdv",
+  "version": 1,
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {
+    "lucide-react": "^0.263.1"
+  },
+  "required": {
+    "siteId": false
+  },
+  "props": {
+    "siteId": {
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "ID du site pour filtrer les rendez-vous"
+    }
+  },
+  "description": "Interface d'administration pour gérer les rendez-vous par site",
+  "category": "admin",
+  "tags": [
+    "admin",
+    "rdv",
+    "calendar",
+    "gestion"
+  ]
+}

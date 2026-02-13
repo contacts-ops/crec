@@ -1,0 +1,31 @@
+User-agent: *
+Allow: /
+Allow: /actualite/
+Allow: /article/
+Allow: /contact/
+Allow: /landing-client/
+Allow: /mediatheque/
+Allow: /nos-services/
+Allow: /qui-sommes-nous/
+
+# Routes techniques / back-office à ne pas indexer
+Disallow: /src/
+Disallow: /node_modules/
+Disallow: /.git/
+Disallow: /.env*
+Disallow: /package.json
+Disallow: /package-lock.json
+Disallow: /tsconfig.json
+Disallow: /vite.config.ts
+Disallow: /dist/
+Disallow: /build/
+Disallow: /out/
+Disallow: /admin/
+Disallow: /login/
+Disallow: /reset-password/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+Disallow: /*?q=*
+
+Sitemap: https://crec-experts-comptables.majoli.io/sitemap.xml

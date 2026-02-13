@@ -1,0 +1,48 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm install --include=dev --legacy-peer-deps
+    build:
+      commands:
+        # Variables d'environnement depuis Amplify (configurées dans la console)
+        - echo "MONGODB_URI=$MONGODB_URI" >> .env.production
+        - echo "JWT_SECRET=$JWT_SECRET" >> .env.production
+        - echo "SENDGRID_API_KEY=$SENDGRID_API_KEY" >> .env.production
+        - echo "SENDGRID_SENDER=$SENDGRID_SENDER" >> .env.production
+        - echo "SENDGRID_SENDER_NAME=$SENDGRID_SENDER_NAME" >> .env.production
+        - echo "S3_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID" >> .env.production
+        - echo "S3_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY" >> .env.production
+        - echo "S3_BUCKET_NAME=$S3_BUCKET_NAME" >> .env.production
+        - echo "S3_REGION=$S3_REGION" >> .env.production
+        - echo "OVH_APP_KEY=$OVH_APP_KEY" >> .env.production
+        - echo "OVH_APP_SECRET=$OVH_APP_SECRET" >> .env.production
+        - echo "OVH_CONSUMER_KEY=$OVH_CONSUMER_KEY" >> .env.production
+        - echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env.production
+        - echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> .env.production
+        - echo "POSTHOG_HOST=$POSTHOG_HOST" >> .env.production
+        - echo "POSTHOG_PERSONAL_API_KEY=$POSTHOG_PERSONAL_API_KEY" >> .env.production
+        - echo "POSTHOG_PUBLIC_KEY=$POSTHOG_PUBLIC_KEY" >> .env.production
+        - echo "POSTHOG_PROJECT_ID=$POSTHOG_PROJECT_ID" >> .env.production
+        - echo "SERP_API_KEY=$SERP_API_KEY" >> .env.production
+        - echo "STRIPE_WEBHOOK_SECRET_TEST=$STRIPE_WEBHOOK_SECRET_TEST" >> .env.production
+        - echo "STRIPE_WEBHOOK_SECRET_LIVE=$STRIPE_WEBHOOK_SECRET_LIVE" >> .env.production
+        - echo "E_COMMERCE_STRIPE_PUBLISHABLE_KEY=$E_COMMERCE_STRIPE_PUBLISHABLE_KEY" >> .env.production
+        - echo "E_COMMERCE_STRIPE_SECRET_KEY=$E_COMMERCE_STRIPE_SECRET_KEY" >> .env.production
+        # Variables spécifiques au site (valeurs hardcodées)
+        - echo "FRONTEND_URL=$frontendUrl" >> .env.production
+        - echo "MAIL_FROM_DOMAIN=$mailFromDomain" >> .env.production
+        - echo "ADMIN_EMAIL=$adminEmail" >> .env.production
+        - echo "COMPANY_NAME=$companyName" >> .env.production
+        - echo "DEFAULT_SITE_ID=$siteId" >> .env.production
+        - echo "NODE_ENV=production" >> .env.production
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/**/*

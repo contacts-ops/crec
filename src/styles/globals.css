@@ -1,0 +1,1567 @@
+/* Tailwind CSS directives */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* stylelint-disable at-rule-no-unknown */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 355 99% 65%; /* Updated to match #FE505D */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%; /* Updated to match #FE505D */
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%; /* Updated to match #FE505D */
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%; /* Updated to match #FE505D */
+
+    /* Added majoli brand color */
+    --majoli-primary: 353 99% 65%; /* Same as #FE505D */
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --text-primary: #f5f5f5;
+    --text-secondary: #d4d4d4;
+    --text-tertiary: #a3a3a3;
+    --bg-primary: #0d0d0d;
+    --bg-secondary: #171717;
+    --bg-tertiary: #262626;
+    --bg-quaternary: #313131;
+    --bg-button: #313131;
+    --border-primary: hsla(0, 0%, 100%, 0.12);
+    --border-secondary: hsla(0, 0%, 100%, 0.08);
+    --button-shadow:
+      0px -1px 0px 0px hsla(0, 0%, 100%, 0.04),
+      0px 0px 0px 1px hsla(0, 0%, 100%, 0.12),
+      0px 0px 1px 0px rgba(0, 0, 0, 0.04), 0px 2px 2px 0px rgba(0, 0, 0, 0.04),
+      0px 4px 2px 0px rgba(0, 0, 0, 0.04), 0px 6px 3px 0px rgba(0, 0, 0, 0.04);
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%; /* Better dark background */
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%; /* Darker card background */
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%; /* Keep brand color in dark mode */
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%; /* Improved secondary color */
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%; /* Keep brand color for ring */
+
+    --sidebar-background: 240 5.9% 10%; /* Darker sidebar */
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%; /* Keep brand color in dark mode */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%; /* Darker border */
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Dark mode majoli brand color */
+    --majoli-primary: 353 99% 65%; /* Same as #FE505D */
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Masquer le bouton natif du navigateur pour les champs password */
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
+    display: none;
+  }
+
+  input[type="password"]::-webkit-credentials-auto-fill-button {
+    display: none !important;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .text-majoli-primary {
+    color: #fe505d;
+  }
+
+  .bg-majoli-primary {
+    background-color: #fe505d;
+  }
+
+  .border-majoli-primary {
+    border-color: #fe505d;
+  }
+
+  /* Dark mode glass effect */
+  .dark .glass {
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Dark mode text color adjustments */
+  .dark .text-majoli-dark,
+  .dark .text-gray-900 {
+    color: #ffffff; /* white */
+  }
+
+  .dark .text-gray-500 {
+    color: #d1d5db; /* gray-300 */
+  }
+
+  /* Fix: Use direct color value instead of circular @apply */
+  .dark .text-gray-400 {
+    color: #a1a1aa; /* Equivalent to tailwind's gray-400 */
+  }
+}
+
+@keyframes rotate-circular-text {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.animate-circular-text {
+  animation: rotate-circular-text 10s linear infinite;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+/* 🍌 Mode Banane - Transforme toutes les couleurs en noir et jaune banane */
+.banana-mode {
+  /* Variables CSS pour le mode banane */
+  --banana-yellow: #ffd700;
+  --banana-yellow-dark: #ffa500;
+  --banana-yellow-light: #ffff00;
+  --banana-black: #000000;
+  --banana-white: #ffffff;
+}
+
+.banana-mode * {
+  /* Remplacer toutes les couleurs Majoli par du jaune banane */
+  color: var(--banana-yellow) !important;
+}
+
+.banana-mode .bg-gradient-to-r.from-\[#FE505D\],
+.banana-mode .bg-gradient-to-r.from-\[#FE505D\]\/90,
+.banana-mode .bg-gradient-to-r.from-\[#FE505D\]\/10,
+.banana-mode .bg-gradient-to-r.from-\[#FE505D\]\/20,
+.banana-mode .bg-gradient-to-r.from-\[#FE505D\]\/30,
+.banana-mode .bg-gradient-to-r.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to right,
+    var(--banana-yellow),
+    var(--banana-yellow-dark)
+  ) !important;
+}
+
+.banana-mode .bg-gradient-to-br.from-\[#FE505D\],
+.banana-mode .bg-gradient-to-br.from-\[#FE505D\]\/90,
+.banana-mode .bg-gradient-to-br.from-\[#FE505D\]\/10,
+.banana-mode .bg-gradient-to-br.from-\[#FE505D\]\/20,
+.banana-mode .bg-gradient-to-br.from-\[#FE505D\]\/30,
+.banana-mode .bg-gradient-to-br.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to bottom right,
+    var(--banana-yellow),
+    var(--banana-yellow-dark)
+  ) !important;
+}
+
+.banana-mode .bg-gradient-to-r.to-\[#FF6B7A\],
+.banana-mode .bg-gradient-to-br.to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--banana-yellow),
+    var(--banana-yellow-dark)
+  ) !important;
+}
+
+.banana-mode .bg-\[#FE505D\],
+.banana-mode .bg-\[#FF6B7A\] {
+  background-color: var(--banana-yellow) !important;
+}
+
+.banana-mode .text-\[#FE505D\],
+.banana-mode .text-\[#FF6B7A\] {
+  color: var(--banana-yellow) !important;
+}
+
+.banana-mode .border-\[#FE505D\],
+.banana-mode .border-\[#FF6B7A\] {
+  border-color: var(--banana-yellow) !important;
+}
+
+.banana-mode .shadow-\[#FE505D\],
+.banana-mode .shadow-\[#FF6B7A\] {
+  box-shadow: 0 10px 15px -3px rgba(255, 215, 0, 0.3) !important;
+}
+
+.banana-mode .hover\:shadow-\[#FE505D\],
+.banana-mode .hover\:shadow-\[#FF6B7A\] {
+  box-shadow: 0 20px 25px -5px rgba(255, 215, 0, 0.4) !important;
+}
+
+/* Arrière-plans en noir */
+.banana-mode .bg-white,
+.banana-mode .bg-gray-50,
+.banana-mode .bg-gray-100,
+.banana-mode .bg-gray-200 {
+  background-color: var(--banana-black) !important;
+}
+
+.banana-mode .bg-white\/80,
+.banana-mode .bg-white\/70,
+.banana-mode .bg-white\/60 {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Textes en jaune ou blanc */
+.banana-mode .text-gray-900,
+.banana-mode .text-gray-800,
+.banana-mode .text-gray-700,
+.banana-mode .text-gray-600,
+.banana-mode .text-gray-500,
+.banana-mode .text-gray-400 {
+  color: var(--banana-yellow) !important;
+}
+
+.banana-mode .text-white {
+  color: var(--banana-white) !important;
+}
+
+/* Boutons et éléments interactifs */
+.banana-mode button,
+.banana-mode .bg-gradient-to-r,
+.banana-mode .bg-gradient-to-br {
+  background: linear-gradient(
+    to right,
+    var(--banana-yellow),
+    var(--banana-yellow-dark)
+  ) !important;
+  color: var(--banana-black) !important;
+}
+
+.banana-mode button:hover,
+.banana-mode .hover\:bg-gradient-to-r:hover,
+.banana-mode .hover\:bg-gradient-to-br:hover {
+  background: linear-gradient(
+    to right,
+    var(--banana-yellow-dark),
+    var(--banana-yellow)
+  ) !important;
+}
+
+/* Effets de survol */
+.banana-mode .hover\:from-\[#FE505D\],
+.banana-mode .hover\:to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--banana-yellow-dark),
+    var(--banana-yellow)
+  ) !important;
+}
+
+/* Icônes et éléments spéciaux */
+.banana-mode svg {
+  color: var(--banana-yellow) !important;
+}
+
+.banana-mode .text-majoli-primary {
+  color: var(--banana-yellow) !important;
+}
+
+.banana-mode .bg-majoli-primary {
+  background-color: var(--banana-yellow) !important;
+}
+
+.banana-mode .border-majoli-primary {
+  border-color: var(--banana-yellow) !important;
+}
+
+/* 🌍 Traductions - Classes pour chaque langue */
+.language-en * {
+  font-family:
+    "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.language-es * {
+  font-family:
+    "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.language-de * {
+  font-family:
+    "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.language-it * {
+  font-family:
+    "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.language-pt * {
+  font-family:
+    "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.language-nl * {
+  font-family:
+    "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.language-ru * {
+  font-family:
+    "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.language-ja * {
+  font-family:
+    "Noto Sans JP", "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.language-ko * {
+  font-family:
+    "Noto Sans KR", "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.language-zh * {
+  font-family:
+    "Noto Sans SC", "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.language-ar * {
+  font-family:
+    "Noto Sans Arabic", "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+  direction: rtl !important;
+}
+
+.language-hi * {
+  font-family:
+    "Noto Sans Devanagari", "Inter", "Segoe UI", Tahoma, Geneva, Verdana,
+    sans-serif !important;
+}
+
+.language-fr * {
+  font-family:
+    "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+/* ✨ Mode Disco - Transforme toutes les couleurs en couleurs disco animées */
+.disco-mode {
+  /* Variables CSS pour le mode disco */
+  --disco-purple: #8b5cf6;
+  --disco-pink: #ec4899;
+  --disco-blue: #3b82f6;
+  --disco-green: #10b981;
+  --disco-yellow: #f59e0b;
+  --disco-orange: #f97316;
+  --disco-red: #ef4444;
+  --disco-cyan: #06b6d4;
+}
+
+/* Animation des couleurs disco */
+@keyframes disco-colors {
+  0% {
+    --disco-primary: var(--disco-purple);
+  }
+  12.5% {
+    --disco-primary: var(--disco-pink);
+  }
+  25% {
+    --disco-primary: var(--disco-blue);
+  }
+  37.5% {
+    --disco-primary: var(--disco-green);
+  }
+  50% {
+    --disco-primary: var(--disco-yellow);
+  }
+  62.5% {
+    --disco-primary: var(--disco-orange);
+  }
+  75% {
+    --disco-primary: var(--disco-red);
+  }
+  87.5% {
+    --disco-primary: var(--disco-cyan);
+  }
+  100% {
+    --disco-primary: var(--disco-purple);
+  }
+}
+
+.disco-mode {
+  animation: disco-colors 3s linear infinite;
+}
+
+/* Remplacer toutes les couleurs Majoli par des couleurs disco animées */
+.disco-mode .bg-gradient-to-r.from-\[#FE505D\],
+.disco-mode .bg-gradient-to-r.from-\[#FE505D\]\/90,
+.disco-mode .bg-gradient-to-r.from-\[#FE505D\]\/10,
+.disco-mode .bg-gradient-to-r.from-\[#FE505D\]\/20,
+.disco-mode .bg-gradient-to-r.from-\[#FE505D\]\/30,
+.disco-mode .bg-gradient-to-r.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to right,
+    var(--disco-primary),
+    var(--disco-pink)
+  ) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+.disco-mode .bg-gradient-to-br.from-\[#FE505D\],
+.disco-mode .bg-gradient-to-br.from-\[#FE505D\]\/90,
+.disco-mode .bg-gradient-to-br.from-\[#FE505D\]\/10,
+.disco-mode .bg-gradient-to-br.from-\[#FE505D\]\/20,
+.disco-mode .bg-gradient-to-br.from-\[#FE505D\]\/30,
+.disco-mode .bg-gradient-to-br.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to bottom right,
+    var(--disco-primary),
+    var(--disco-pink)
+  ) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+.disco-mode .bg-gradient-to-r.to-\[#FF6B7A\],
+.disco-mode .bg-gradient-to-br.to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--disco-primary),
+    var(--disco-pink)
+  ) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+.disco-mode .bg-\[#FE505D\],
+.disco-mode .bg-\[#FF6B7A\] {
+  background-color: var(--disco-primary) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+.disco-mode .text-\[#FE505D\],
+.disco-mode .text-\[#FF6B7A\] {
+  color: var(--disco-primary) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+.disco-mode .border-\[#FE505D\],
+.disco-mode .border-\[#FF6B7A\] {
+  border-color: var(--disco-primary) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+.disco-mode .shadow-\[#FE505D\],
+.disco-mode .shadow-\[#FF6B7A\] {
+  box-shadow: 0 10px 15px -3px var(--disco-primary) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+.disco-mode .hover\:shadow-\[#FE505D\],
+.disco-mode .hover\:shadow-\[#FF6B7A\] {
+  box-shadow: 0 20px 25px -5px var(--disco-primary) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+/* Arrière-plans disco animés */
+.disco-mode .bg-white,
+.disco-mode .bg-gray-50,
+.disco-mode .bg-gray-100,
+.disco-mode .bg-gray-200 {
+  background: linear-gradient(
+    45deg,
+    var(--disco-purple),
+    var(--disco-pink),
+    var(--disco-blue),
+    var(--disco-green)
+  ) !important;
+  background-size: 400% 400% !important;
+  animation: disco-bg 4s ease-in-out infinite;
+}
+
+@keyframes disco-bg {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.disco-mode .bg-white\/80,
+.disco-mode .bg-white\/70,
+.disco-mode .bg-white\/60 {
+  background: linear-gradient(
+    45deg,
+    var(--disco-purple),
+    var(--disco-pink),
+    var(--disco-blue),
+    var(--disco-green)
+  ) !important;
+  background-size: 400% 400% !important;
+  animation: disco-bg 4s ease-in-out infinite;
+  opacity: 0.8 !important;
+}
+
+/* Boutons et éléments interactifs disco */
+.disco-mode button,
+.disco-mode .bg-gradient-to-r,
+.disco-mode .bg-gradient-to-br {
+  background: linear-gradient(
+    to right,
+    var(--disco-primary),
+    var(--disco-pink)
+  ) !important;
+  color: white !important;
+  animation: disco-colors 1.5s linear infinite;
+}
+
+.disco-mode button:hover,
+.disco-mode .hover\:bg-gradient-to-r:hover,
+.disco-mode .hover\:bg-gradient-to-br:hover {
+  background: linear-gradient(
+    to right,
+    var(--disco-pink),
+    var(--disco-blue)
+  ) !important;
+  animation: disco-colors 1s linear infinite;
+}
+
+/* Effets de survol disco */
+.disco-mode .hover\:from-\[#FE505D\],
+.disco-mode .hover\:to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--disco-pink),
+    var(--disco-blue)
+  ) !important;
+  animation: disco-colors 1s linear infinite;
+}
+
+/* Icônes et éléments spéciaux disco */
+.disco-mode svg {
+  color: var(--disco-primary) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+.disco-mode .text-majoli-primary {
+  color: var(--disco-primary) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+.disco-mode .bg-majoli-primary {
+  background-color: var(--disco-primary) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+.disco-mode .border-majoli-primary {
+  border-color: var(--disco-primary) !important;
+  animation: disco-colors 2s linear infinite;
+}
+
+/* Animation de la boule à facettes */
+.disco-mode::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 20% 80%, var(--disco-purple) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, var(--disco-pink) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, var(--disco-blue) 0%, transparent 50%);
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: -1;
+  animation: disco-lights 6s ease-in-out infinite;
+}
+
+@keyframes disco-lights {
+  0%,
+  100% {
+    background:
+      radial-gradient(
+        circle at 20% 80%,
+        var(--disco-purple) 0%,
+        transparent 50%
+      ),
+      radial-gradient(circle at 80% 20%, var(--disco-pink) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, var(--disco-blue) 0%, transparent 50%);
+  }
+  33% {
+    background:
+      radial-gradient(
+        circle at 80% 80%,
+        var(--disco-green) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 20% 20%,
+        var(--disco-yellow) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 60% 60%,
+        var(--disco-orange) 0%,
+        transparent 50%
+      );
+  }
+  66% {
+    background:
+      radial-gradient(circle at 40% 20%, var(--disco-red) 0%, transparent 50%),
+      radial-gradient(circle at 60% 80%, var(--disco-cyan) 0%, transparent 50%),
+      radial-gradient(
+        circle at 80% 40%,
+        var(--disco-purple) 0%,
+        transparent 50%
+      );
+  }
+}
+
+/* 💚 Mode Matrix - Transforme toutes les couleurs en code vert cyberpunk */
+.matrix-mode {
+  /* Variables CSS pour le mode matrix */
+  --matrix-green: #00ff00;
+  --matrix-green-dark: #00cc00;
+  --matrix-green-light: #33ff33;
+  --matrix-black: #000000;
+  --matrix-dark: #001100;
+  --matrix-white: #ffffff;
+}
+
+/* Remplacer toutes les couleurs Majoli par du vert Matrix */
+.matrix-mode .bg-gradient-to-r.from-\[#FE505D\],
+.matrix-mode .bg-gradient-to-r.from-\[#FE505D\]\/90,
+.matrix-mode .bg-gradient-to-r.from-\[#FE505D\]\/10,
+.matrix-mode .bg-gradient-to-r.from-\[#FE505D\]\/20,
+.matrix-mode .bg-gradient-to-r.from-\[#FE505D\]\/30,
+.matrix-mode .bg-gradient-to-r.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to right,
+    var(--matrix-green),
+    var(--matrix-green-dark)
+  ) !important;
+}
+
+.matrix-mode .bg-gradient-to-br.from-\[#FE505D\],
+.matrix-mode .bg-gradient-to-br.from-\[#FE505D\]\/90,
+.matrix-mode .bg-gradient-to-br.from-\[#FE505D\]\/10,
+.matrix-mode .bg-gradient-to-br.from-\[#FE505D\]\/20,
+.matrix-mode .bg-gradient-to-br.from-\[#FE505D\]\/30,
+.matrix-mode .bg-gradient-to-br.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to bottom right,
+    var(--matrix-green),
+    var(--matrix-green-dark)
+  ) !important;
+}
+
+.matrix-mode .bg-gradient-to-r.to-\[#FF6B7A\],
+.matrix-mode .bg-gradient-to-br.to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--matrix-green),
+    var(--matrix-green-dark)
+  ) !important;
+}
+
+.matrix-mode .bg-\[#FE505D\],
+.matrix-mode .bg-\[#FF6B7A\] {
+  background-color: var(--matrix-green) !important;
+}
+
+.matrix-mode .text-\[#FE505D\],
+.matrix-mode .text-\[#FF6B7A\] {
+  color: var(--matrix-green) !important;
+}
+
+.matrix-mode .border-\[#FE505D\],
+.matrix-mode .border-\[#FF6B7A\] {
+  border-color: var(--matrix-green) !important;
+}
+
+/* Arrière-plans en noir profond */
+.matrix-mode .bg-white,
+.matrix-mode .bg-gray-50,
+.matrix-mode .bg-gray-100,
+.matrix-mode .bg-gray-200 {
+  background-color: var(--matrix-black) !important;
+}
+
+.matrix-mode .bg-white\/80,
+.matrix-mode .bg-white\/70,
+.matrix-mode .bg-white\/60 {
+  background-color: var(--matrix-dark) !important;
+}
+
+/* Textes en vert Matrix */
+.matrix-mode .text-gray-900,
+.matrix-mode .text-gray-800,
+.matrix-mode .text-gray-700,
+.matrix-mode .text-gray-600,
+.matrix-mode .text-gray-500,
+.matrix-mode .text-gray-400 {
+  color: var(--matrix-green) !important;
+}
+
+.matrix-mode .text-white {
+  color: var(--matrix-white) !important;
+}
+
+/* Boutons et éléments interactifs */
+.matrix-mode button,
+.matrix-mode .bg-gradient-to-r,
+.matrix-mode .bg-gradient-to-br {
+  background: linear-gradient(
+    to right,
+    var(--matrix-green),
+    var(--matrix-green-dark)
+  ) !important;
+  color: var(--matrix-black) !important;
+}
+
+.matrix-mode button:hover,
+.matrix-mode .hover\:bg-gradient-to-r:hover,
+.matrix-mode .hover\:bg-gradient-to-br:hover {
+  background: linear-gradient(
+    to right,
+    var(--matrix-green-dark),
+    var(--matrix-green-light)
+  ) !important;
+}
+
+/* Effets de survol */
+.matrix-mode .hover\:from-\[#FE505D\],
+.matrix-mode .hover\:to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--matrix-green-dark),
+    var(--matrix-green-light)
+  ) !important;
+}
+
+/* Icônes et éléments spéciaux */
+.matrix-mode svg {
+  color: var(--matrix-green) !important;
+}
+
+.matrix-mode .text-majoli-primary {
+  color: var(--matrix-green) !important;
+}
+
+.matrix-mode .bg-majoli-primary {
+  background-color: var(--matrix-green) !important;
+}
+
+.matrix-mode .border-majoli-primary {
+  border-color: var(--matrix-green) !important;
+}
+
+/* 🌈 Mode Rainbow - Transforme toutes les couleurs en arc-en-ciel animé */
+.rainbow-mode {
+  /* Variables CSS pour le mode rainbow */
+  --rainbow-red: #ff0000;
+  --rainbow-orange: #ff8000;
+  --rainbow-yellow: #ffff00;
+  --rainbow-green: #00ff00;
+  --rainbow-blue: #0080ff;
+  --rainbow-indigo: #8000ff;
+  --rainbow-purple: #ff00ff;
+}
+
+/* Animation des couleurs rainbow */
+@keyframes rainbow-colors {
+  0% { --rainbow-primary: var(--rainbow-red); }
+  14.3% { --rainbow-primary: var(--rainbow-orange); }
+  28.6% { --rainbow-primary: var(--rainbow-yellow); }
+  42.9% { --rainbow-primary: var(--rainbow-green); }
+  57.1% { --rainbow-primary: var(--rainbow-blue); }
+  71.4% { --rainbow-primary: var(--rainbow-indigo); }
+  85.7% { --rainbow-primary: var(--rainbow-purple); }
+  100% { --rainbow-primary: var(--rainbow-red); }
+}
+
+.rainbow-mode {
+  animation: rainbow-colors 3s linear infinite;
+}
+
+/* Remplacer toutes les couleurs Majoli par des couleurs rainbow animées */
+.rainbow-mode .bg-gradient-to-r.from-\[#FE505D\],
+.rainbow-mode .bg-gradient-to-r.from-\[#FE505D\]\/90,
+.rainbow-mode .bg-gradient-to-r.from-\[#FE505D\]\/10,
+.rainbow-mode .bg-gradient-to-r.from-\[#FE505D\]\/20,
+.rainbow-mode .bg-gradient-to-r.from-\[#FE505D\]\/30,
+.rainbow-mode .bg-gradient-to-r.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to right,
+    var(--rainbow-primary),
+    var(--rainbow-orange)
+  ) !important;
+  animation: rainbow-colors 2s linear infinite;
+}
+
+.rainbow-mode .bg-gradient-to-br.from-\[#FE505D\],
+.rainbow-mode .bg-gradient-to-br.from-\[#FE505D\]\/90,
+.rainbow-mode .bg-gradient-to-br.from-\[#FE505D\]\/10,
+.rainbow-mode .bg-gradient-to-br.from-\[#FE505D\]\/20,
+.rainbow-mode .bg-gradient-to-br.from-\[#FE505D\]\/30,
+.rainbow-mode .bg-gradient-to-br.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to bottom right,
+    var(--rainbow-primary),
+    var(--rainbow-orange)
+  ) !important;
+  animation: rainbow-colors 2s linear infinite;
+}
+
+.rainbow-mode .bg-gradient-to-r.to-\[#FF6B7A\],
+.rainbow-mode .bg-gradient-to-br.to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--rainbow-primary),
+    var(--rainbow-orange)
+  ) !important;
+  animation: rainbow-colors 2s linear infinite;
+}
+
+.rainbow-mode .bg-\[#FE505D\],
+.rainbow-mode .bg-\[#FF6B7A\] {
+  background-color: var(--rainbow-primary) !important;
+  animation: rainbow-colors 2s linear infinite;
+}
+
+.rainbow-mode .text-\[#FE505D\],
+.rainbow-mode .text-\[#FF6B7A\] {
+  color: var(--rainbow-primary) !important;
+  animation: rainbow-colors 2s linear infinite;
+}
+
+.rainbow-mode .border-\[#FE505D\],
+.rainbow-mode .border-\[#FF6B7A\] {
+  border-color: var(--rainbow-primary) !important;
+  animation: rainbow-colors 2s linear infinite;
+}
+
+/* Arrière-plans rainbow animés */
+.rainbow-mode .bg-white,
+.rainbow-mode .bg-gray-50,
+.rainbow-mode .bg-gray-100,
+.rainbow-mode .bg-gray-200 {
+  background: linear-gradient(
+    45deg,
+    var(--rainbow-red),
+    var(--rainbow-orange),
+    var(--rainbow-yellow),
+    var(--rainbow-green),
+    var(--rainbow-blue),
+    var(--rainbow-indigo),
+    var(--rainbow-purple)
+  ) !important;
+  background-size: 400% 400% !important;
+  animation: rainbow-bg 4s ease-in-out infinite;
+}
+
+@keyframes rainbow-bg {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.rainbow-mode .bg-white\/80,
+.rainbow-mode .bg-white\/70,
+.rainbow-mode .bg-white\/60 {
+  background: linear-gradient(
+    45deg,
+    var(--rainbow-red),
+    var(--rainbow-orange),
+    var(--rainbow-yellow),
+    var(--rainbow-green),
+    var(--rainbow-blue),
+    var(--rainbow-indigo),
+    var(--rainbow-purple)
+  ) !important;
+  background-size: 400% 400% !important;
+  animation: rainbow-bg 4s ease-in-out infinite;
+  opacity: 0.8 !important;
+}
+
+/* Boutons et éléments interactifs rainbow */
+.rainbow-mode button,
+.rainbow-mode .bg-gradient-to-r,
+.rainbow-mode .bg-gradient-to-br {
+  background: linear-gradient(
+    to right,
+    var(--rainbow-primary),
+    var(--rainbow-orange)
+  ) !important;
+  color: white !important;
+  animation: rainbow-colors 1.5s linear infinite;
+}
+
+.rainbow-mode button:hover,
+.rainbow-mode .hover\:bg-gradient-to-r:hover,
+.rainbow-mode .hover\:bg-gradient-to-br:hover {
+  background: linear-gradient(
+    to right,
+    var(--rainbow-orange),
+    var(--rainbow-yellow)
+  ) !important;
+  animation: rainbow-colors 1s linear infinite;
+}
+
+/* Effets de survol rainbow */
+.rainbow-mode .hover\:from-\[#FE505D\],
+.rainbow-mode .hover\:to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--rainbow-orange),
+    var(--rainbow-yellow)
+  ) !important;
+  animation: rainbow-colors 1s linear infinite;
+}
+
+/* Icônes et éléments spéciaux rainbow */
+.rainbow-mode svg {
+  color: var(--rainbow-primary) !important;
+  animation: rainbow-colors 2s linear infinite;
+}
+
+.rainbow-mode .text-majoli-primary {
+  color: var(--rainbow-primary) !important;
+  animation: rainbow-colors 2s linear infinite;
+}
+
+.rainbow-mode .bg-majoli-primary {
+  background-color: var(--rainbow-primary) !important;
+  animation: rainbow-colors 2s linear infinite;
+}
+
+.rainbow-mode .border-majoli-primary {
+  border-color: var(--rainbow-primary) !important;
+  animation: rainbow-colors 2s linear infinite;
+}
+
+/* ⚡ Mode Neon - Transforme toutes les couleurs en effets néon lumineux */
+.neon-mode {
+  /* Variables CSS pour le mode neon */
+  --neon-cyan: #00ffff;
+  --neon-pink: #ff00ff;
+  --neon-green: #00ff00;
+  --neon-yellow: #ffff00;
+  --neon-orange: #ff8000;
+  --neon-red: #ff0000;
+  --neon-blue: #0080ff;
+  --neon-purple: #8000ff;
+  --neon-black: #000000;
+  --neon-dark: #0a0a0a;
+}
+
+/* Remplacer toutes les couleurs Majoli par des effets néon */
+.neon-mode .bg-gradient-to-r.from-\[#FE505D\],
+.neon-mode .bg-gradient-to-r.from-\[#FE505D\]\/90,
+.neon-mode .bg-gradient-to-r.from-\[#FE505D\]\/10,
+.neon-mode .bg-gradient-to-r.from-\[#FE505D\]\/20,
+.neon-mode .bg-gradient-to-r.from-\[#FE505D\]\/30,
+.neon-mode .bg-gradient-to-r.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to right,
+    var(--neon-cyan),
+    var(--neon-pink)
+  ) !important;
+  box-shadow: 
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 15px var(--neon-cyan),
+    0 0 20px var(--neon-cyan) !important;
+}
+
+.neon-mode .bg-gradient-to-br.from-\[#FE505D\],
+.neon-mode .bg-gradient-to-br.from-\[#FE505D\]\/90,
+.neon-mode .bg-gradient-to-br.from-\[#FE505D\]\/10,
+.neon-mode .bg-gradient-to-br.from-\[#FE505D\]\/20,
+.neon-mode .bg-gradient-to-br.from-\[#FE505D\]\/30,
+.neon-mode .bg-gradient-to-br.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to bottom right,
+    var(--neon-cyan),
+    var(--neon-pink)
+  ) !important;
+  box-shadow: 
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 15px var(--neon-cyan),
+    0 0 20px var(--neon-cyan) !important;
+}
+
+.neon-mode .bg-gradient-to-r.to-\[#FF6B7A\],
+.neon-mode .bg-gradient-to-br.to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--neon-cyan),
+    var(--neon-pink)
+  ) !important;
+  box-shadow: 
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 15px var(--neon-cyan),
+    0 0 20px var(--neon-cyan) !important;
+}
+
+.neon-mode .bg-\[#FE505D\],
+.neon-mode .bg-\[#FF6B7A\] {
+  background-color: var(--neon-cyan) !important;
+  box-shadow: 
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 15px var(--neon-cyan),
+    0 0 20px var(--neon-cyan) !important;
+}
+
+.neon-mode .text-\[#FE505D\],
+.neon-mode .text-\[#FF6B7A\] {
+  color: var(--neon-cyan) !important;
+  text-shadow: 
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 15px var(--neon-cyan) !important;
+}
+
+.neon-mode .border-\[#FE505D\],
+.neon-mode .border-\[#FF6B7A\] {
+  border-color: var(--neon-cyan) !important;
+  box-shadow: 
+    0 0 5px var(--neon-cyan),
+    inset 0 0 5px var(--neon-cyan) !important;
+}
+
+/* Arrière-plans en noir avec lueurs */
+.neon-mode .bg-white,
+.neon-mode .bg-gray-50,
+.neon-mode .bg-gray-100,
+.neon-mode .bg-gray-200 {
+  background-color: var(--neon-black) !important;
+  box-shadow: 
+    0 0 20px var(--neon-cyan),
+    inset 0 0 20px var(--neon-cyan) !important;
+}
+
+.neon-mode .bg-white\/80,
+.neon-mode .bg-white\/70,
+.neon-mode .bg-white\/60 {
+  background-color: var(--neon-dark) !important;
+  box-shadow: 
+    0 0 15px var(--neon-cyan),
+    inset 0 0 15px var(--neon-cyan) !important;
+  opacity: 0.8 !important;
+}
+
+/* Textes en couleurs néon brillantes */
+.neon-mode .text-gray-900,
+.neon-mode .text-gray-800,
+.neon-mode .text-gray-700,
+.neon-mode .text-gray-600,
+.neon-mode .text-gray-500,
+.neon-mode .text-gray-400 {
+  color: var(--neon-cyan) !important;
+  text-shadow: 
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 15px var(--neon-cyan) !important;
+}
+
+.neon-mode .text-white {
+  color: var(--neon-white) !important;
+  text-shadow: 
+    0 0 5px var(--neon-white),
+    0 0 10px var(--neon-white),
+    0 0 15px var(--neon-white) !important;
+}
+
+/* Boutons et éléments interactifs avec effets néon */
+.neon-mode button,
+.neon-mode .bg-gradient-to-r,
+.neon-mode .bg-gradient-to-br {
+  background: linear-gradient(
+    to right,
+    var(--neon-cyan),
+    var(--neon-pink)
+  ) !important;
+  color: var(--neon-black) !important;
+  box-shadow: 
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 15px var(--neon-cyan),
+    0 0 20px var(--neon-cyan) !important;
+}
+
+.neon-mode button:hover,
+.neon-mode .hover\:bg-gradient-to-r:hover,
+.neon-mode .hover\:bg-gradient-to-br:hover {
+  background: linear-gradient(
+    to right,
+    var(--neon-pink),
+    var(--neon-yellow)
+  ) !important;
+  box-shadow: 
+    0 0 5px var(--neon-pink),
+    0 0 10px var(--neon-pink),
+    0 0 15px var(--neon-pink),
+    0 0 20px var(--neon-pink) !important;
+}
+
+/* Effets de survol néon */
+.neon-mode .hover\:from-\[#FE505D\],
+.neon-mode .hover\:to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--neon-pink),
+    var(--neon-yellow)
+  ) !important;
+  box-shadow: 
+    0 0 5px var(--neon-pink),
+    0 0 10px var(--neon-pink),
+    0 0 15px var(--neon-pink),
+    0 0 20px var(--neon-pink) !important;
+}
+
+/* Icônes et éléments spéciaux avec lueurs néon */
+.neon-mode svg {
+  color: var(--neon-cyan) !important;
+  filter: drop-shadow(0 0 5px var(--neon-cyan)) !important;
+}
+
+.neon-mode .text-majoli-primary {
+  color: var(--neon-cyan) !important;
+  text-shadow: 
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 15px var(--neon-cyan) !important;
+}
+
+.neon-mode .bg-majoli-primary {
+  background-color: var(--neon-cyan) !important;
+  box-shadow: 
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 15px var(--neon-cyan),
+    0 0 20px var(--neon-cyan) !important;
+}
+
+.neon-mode .border-majoli-primary {
+  border-color: var(--neon-cyan) !important;
+  box-shadow: 
+    0 0 5px var(--neon-cyan),
+    inset 0 0 5px var(--neon-cyan) !important;
+}
+
+/* 🎨 Mode Retro - Transforme toutes les couleurs en style années 80 */
+.retro-mode {
+  /* Variables CSS pour le mode retro */
+  --retro-orange: #ff6600;
+  --retro-pink: #ff0080;
+  --retro-cyan: #00ffff;
+  --retro-yellow: #ffff00;
+  --retro-green: #00ff00;
+  --retro-blue: #0080ff;
+  --retro-purple: #8000ff;
+  --retro-red: #ff0000;
+  --retro-black: #000000;
+  --retro-dark: #1a1a1a;
+  --retro-white: #ffffff;
+}
+
+/* Remplacer toutes les couleurs Majoli par des couleurs années 80 */
+.retro-mode .bg-gradient-to-r.from-\[#FE505D\],
+.retro-mode .bg-gradient-to-r.from-\[#FE505D\]\/90,
+.retro-mode .bg-gradient-to-r.from-\[#FE505D\]\/10,
+.retro-mode .bg-gradient-to-r.from-\[#FE505D\]\/20,
+.retro-mode .bg-gradient-to-r.from-\[#FE505D\]\/30,
+.retro-mode .bg-gradient-to-r.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to right,
+    var(--retro-orange),
+    var(--retro-pink)
+  ) !important;
+}
+
+.retro-mode .bg-gradient-to-br.from-\[#FE505D\],
+.retro-mode .bg-gradient-to-br.from-\[#FE505D\]\/90,
+.retro-mode .bg-gradient-to-br.from-\[#FE505D\]\/10,
+.retro-mode .bg-gradient-to-br.from-\[#FE505D\]\/20,
+.retro-mode .bg-gradient-to-br.from-\[#FE505D\]\/30,
+.retro-mode .bg-gradient-to-br.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to bottom right,
+    var(--retro-orange),
+    var(--retro-pink)
+  ) !important;
+}
+
+.retro-mode .bg-gradient-to-r.to-\[#FF6B7A\],
+.retro-mode .bg-gradient-to-br.to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--retro-orange),
+    var(--retro-pink)
+  ) !important;
+}
+
+.retro-mode .bg-\[#FE505D\],
+.retro-mode .bg-\[#FF6B7A\] {
+  background-color: var(--retro-orange) !important;
+}
+
+.retro-mode .text-\[#FE505D\],
+.retro-mode .text-\[#FF6B7A\] {
+  color: var(--retro-orange) !important;
+}
+
+.retro-mode .border-\[#FE505D\],
+.retro-mode .border-\[#FF6B7A\] {
+  border-color: var(--retro-orange) !important;
+}
+
+/* Arrière-plans en dégradés vifs années 80 */
+.retro-mode .bg-white,
+.retro-mode .bg-gray-50,
+.retro-mode .bg-gray-100,
+.retro-mode .bg-gray-200 {
+  background: linear-gradient(
+    135deg,
+    var(--retro-black),
+    var(--retro-dark),
+    var(--retro-purple),
+    var(--retro-blue)
+  ) !important;
+}
+
+.retro-mode .bg-white\/80,
+.retro-mode .bg-white\/70,
+.retro-mode .bg-white\/60 {
+  background: linear-gradient(
+    135deg,
+    var(--retro-black),
+    var(--retro-dark),
+    var(--retro-purple),
+    var(--retro-blue)
+  ) !important;
+  opacity: 0.8 !important;
+}
+
+/* Textes en couleurs flashy années 80 */
+.retro-mode .text-gray-900,
+.retro-mode .text-gray-800,
+.retro-mode .text-gray-700,
+.retro-mode .text-gray-600,
+.retro-mode .text-gray-500,
+.retro-mode .text-gray-400 {
+  color: var(--retro-cyan) !important;
+}
+
+.retro-mode .text-white {
+  color: var(--retro-white) !important;
+}
+
+/* Boutons et éléments interactifs style synthwave */
+.retro-mode button,
+.retro-mode .bg-gradient-to-r,
+.retro-mode .bg-gradient-to-br {
+  background: linear-gradient(
+    to right,
+    var(--retro-orange),
+    var(--retro-pink)
+  ) !important;
+  color: var(--retro-white) !important;
+  border: 2px solid var(--retro-cyan) !important;
+  box-shadow: 
+    0 0 10px var(--retro-orange),
+    inset 0 0 10px var(--retro-orange) !important;
+}
+
+.retro-mode button:hover,
+.retro-mode .hover\:bg-gradient-to-r:hover,
+.retro-mode .hover\:bg-gradient-to-br:hover {
+  background: linear-gradient(
+    to right,
+    var(--retro-pink),
+    var(--retro-cyan)
+  ) !important;
+  box-shadow: 
+    0 0 15px var(--retro-pink),
+    inset 0 0 15px var(--retro-pink) !important;
+}
+
+/* Effets de survol retro */
+.retro-mode .hover\:from-\[#FE505D\],
+.retro-mode .hover\:to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--retro-pink),
+    var(--retro-cyan)
+  ) !important;
+  box-shadow: 
+    0 0 15px var(--retro-pink),
+    inset 0 0 15px var(--retro-pink) !important;
+}
+
+/* Icônes et éléments spéciaux style années 80 */
+.retro-mode svg {
+  color: var(--retro-cyan) !important;
+  filter: drop-shadow(0 0 5px var(--retro-cyan)) !important;
+}
+
+.retro-mode .text-majoli-primary {
+  color: var(--retro-orange) !important;
+}
+
+.retro-mode .bg-majoli-primary {
+  background-color: var(--retro-orange) !important;
+  box-shadow: 
+    0 0 10px var(--retro-orange),
+    inset 0 0 10px var(--retro-orange) !important;
+}
+
+.retro-mode .border-majoli-primary {
+  border-color: var(--retro-orange) !important;
+  box-shadow: 
+    0 0 5px var(--retro-orange),
+    inset 0 0 5px var(--retro-orange) !important;
+}
+
+/* 🌙 Mode Dark - Transforme toutes les couleurs en thème sombre élégant */
+.dark-mode {
+  /* Variables CSS pour le mode dark */
+  --dark-primary: #3b82f6;
+  --dark-secondary: #64748b;
+  --dark-accent: #8b5cf6;
+  --dark-success: #10b981;
+  --dark-warning: #f59e0b;
+  --dark-error: #ef4444;
+  --dark-black: #000000;
+  --dark-gray-900: #111827;
+  --dark-gray-800: #1f2937;
+  --dark-gray-700: #374151;
+  --dark-gray-600: #4b5563;
+  --dark-gray-500: #6b7280;
+  --dark-gray-400: #9ca3af;
+  --dark-gray-300: #d1d5db;
+  --dark-gray-200: #e5e7eb;
+  --dark-gray-100: #f3f4f6;
+  --dark-white: #ffffff;
+}
+
+/* Remplacer toutes les couleurs Majoli par des tons sombres élégants */
+.dark-mode .bg-gradient-to-r.from-\[#FE505D\],
+.dark-mode .bg-gradient-to-r.from-\[#FE505D\]\/90,
+.dark-mode .bg-gradient-to-r.from-\[#FE505D\]\/10,
+.dark-mode .bg-gradient-to-r.from-\[#FE505D\]\/20,
+.dark-mode .bg-gradient-to-r.from-\[#FE505D\]\/30,
+.dark-mode .bg-gradient-to-r.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to right,
+    var(--dark-primary),
+    var(--dark-accent)
+  ) !important;
+}
+
+.dark-mode .bg-gradient-to-br.from-\[#FE505D\],
+.dark-mode .bg-gradient-to-br.from-\[#FE505D\]\/90,
+.dark-mode .bg-gradient-to-br.from-\[#FE505D\]\/10,
+.dark-mode .bg-gradient-to-br.from-\[#FE505D\]\/20,
+.dark-mode .bg-gradient-to-br.from-\[#FE505D\]\/30,
+.dark-mode .bg-gradient-to-br.from-\[#FE505D\]\/5 {
+  background: linear-gradient(
+    to bottom right,
+    var(--dark-primary),
+    var(--dark-accent)
+  ) !important;
+}
+
+.dark-mode .bg-gradient-to-r.to-\[#FF6B7A\],
+.dark-mode .bg-gradient-to-br.to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--dark-primary),
+    var(--dark-accent)
+  ) !important;
+}
+
+.dark-mode .bg-\[#FE505D\],
+.dark-mode .bg-\[#FF6B7A\] {
+  background-color: var(--dark-primary) !important;
+}
+
+.dark-mode .text-\[#FE505D\],
+.dark-mode .text-\[#FF6B7A\] {
+  color: var(--dark-primary) !important;
+}
+
+.dark-mode .border-\[#FE505D\],
+.dark-mode .border-\[#FF6B7A\] {
+  border-color: var(--dark-primary) !important;
+}
+
+/* Arrière-plans en noir et gris */
+.dark-mode .bg-white,
+.dark-mode .bg-gray-50,
+.dark-mode .bg-gray-100,
+.dark-mode .bg-gray-200 {
+  background-color: var(--dark-gray-900) !important;
+}
+
+.dark-mode .bg-white\/80,
+.dark-mode .bg-white\/70,
+.dark-mode .bg-white\/60 {
+  background-color: var(--dark-gray-800) !important;
+  opacity: 0.8 !important;
+}
+
+/* Textes en blanc et gris clair */
+.dark-mode .text-gray-900,
+.dark-mode .text-gray-800,
+.dark-mode .text-gray-700,
+.dark-mode .text-gray-600,
+.dark-mode .text-gray-500,
+.dark-mode .text-gray-400 {
+  color: var(--dark-gray-200) !important;
+}
+
+.dark-mode .text-white {
+  color: var(--dark-white) !important;
+}
+
+/* Boutons et éléments interactifs style sombre élégant */
+.dark-mode button,
+.dark-mode .bg-gradient-to-r,
+.dark-mode .bg-gradient-to-br {
+  background: linear-gradient(
+    to right,
+    var(--dark-primary),
+    var(--dark-accent)
+  ) !important;
+  color: var(--dark-white) !important;
+  border: 1px solid var(--dark-gray-600) !important;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark-mode button:hover,
+.dark-mode .hover\:bg-gradient-to-r:hover,
+.dark-mode .hover\:bg-gradient-to-br:hover {
+  background: linear-gradient(
+    to right,
+    var(--dark-accent),
+    var(--dark-primary)
+  ) !important;
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.4),
+    0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Effets de survol dark */
+.dark-mode .hover\:from-\[#FE505D\],
+.dark-mode .hover\:to-\[#FF6B7A\] {
+  background: linear-gradient(
+    to right,
+    var(--dark-accent),
+    var(--dark-primary)
+  ) !important;
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.4),
+    0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Icônes et éléments spéciaux style sombre */
+.dark-mode svg {
+  color: var(--dark-gray-300) !important;
+}
+
+.dark-mode .text-majoli-primary {
+  color: var(--dark-primary) !important;
+}
+
+.dark-mode .bg-majoli-primary {
+  background-color: var(--dark-primary) !important;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark-mode .border-majoli-primary {
+  border-color: var(--dark-primary) !important;
+}

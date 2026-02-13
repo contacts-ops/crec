@@ -1,0 +1,31 @@
+{
+  "id": "adminTemplate",
+  "name": "AdminTemplate",
+  "type": "admin",
+  "service": "admin",
+  "thumbnail": "/placeholder.svg",
+  "description": "Interface d'administration avec sidebar et gestion des services",
+  "category": "admin",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "label": "ID du site",
+      "default": "",
+      "required": true
+    }
+  },
+  "editableElements": [
+    {
+      "id": "admin-title",
+      "type": "text",
+      "label": "Titre de l'administration",
+      "default": "Administration"
+    },
+    {
+      "id": "admin-subtitle",
+      "type": "text",
+      "label": "Sous-titre",
+      "default": "Gestion du site"
+    }
+  ]
+}

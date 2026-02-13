@@ -1,0 +1,104 @@
+{
+  "id": "article-blog",
+  "name": "Article Blog",
+  "type": "section",
+  "version": 1,
+  "description": "Page de détail d'un article de blog avec contenu, métadonnées et partage social.",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {
+    "lucide-react": "^0.462.0"
+  },
+  "required": {
+    "primaryColor": true,
+    "secondaryColor": true,
+    "fontFamily": true,
+    "secondaryFontFamily": true
+  },
+  "props": {
+    "primaryColor": {
+      "type": "string",
+      "required": true,
+      "default": "#FE505D"
+    },
+    "secondaryColor": {
+      "type": "string",
+      "required": true,
+      "default": "#FFFFFF"
+    },
+    "textColor": {
+      "type": "string",
+      "required": true,
+      "default": "#FFFFFF"
+    },
+    "titleColor": {
+      "type": "string",
+      "required": true,
+      "default": "#FE505D"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "required": true,
+      "default": "#151A1B"
+    },
+    "fontFamily": {
+      "type": "string",
+      "required": true,
+      "default": "DM Sans",
+      "label": "Primary font (Titles)"
+    },
+    "secondaryFontFamily": {
+      "type": "string",
+      "required": true,
+      "default": "Work Sans",
+      "label": "Secondary font (Body text)"
+    },
+    "paddingTop": {
+      "type": "string",
+      "required": false,
+      "default": "",
+      "label": "Padding top au-dessus du bloc (en px, ex: '60px')"
+    },
+    "paddingBottom": {
+      "type": "string",
+      "required": false,
+      "default": "",
+      "label": "Padding bottom en dessous du bloc (en px, ex: '60px')"
+    },
+    "filArianeColor": {
+      "type": "string",
+      "required": true,
+      "default": "#4B5563"
+    },
+    "blogTitle": {
+      "type": "string",
+      "required": true,
+      "default": "#1F2937"
+    },
+    "secondaryBlogTitle": {
+      "type": "string",
+      "required": true,
+      "default": "#000000"
+    },
+    "separatorColor": {
+      "type": "string",
+      "required": true,
+      "default": "#E5E7EB"
+    },
+    "lastModificationDateColor": {
+      "type": "string",
+      "required": true,
+      "default": "#4B5563"
+    },
+    "viewsColor": {
+      "type": "string",
+      "required": true,
+      "default": "#4B5563"
+    },
+    "shareTextButtonColor": {
+      "type": "string",
+      "required": true,
+      "default": "#FFFFFF"
+    }
+  }
+}

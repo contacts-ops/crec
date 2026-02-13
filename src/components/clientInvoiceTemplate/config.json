@@ -1,0 +1,89 @@
+{
+  "id": "clientInvoiceTemplate",
+  "name": "ClientInvoiceTemplate",
+  "type": "admin",
+  "service": "admin",
+  "version": 1,
+  "description": "Interface de consultation des factures Stripe pour les utilisateurs connectés avec accès direct aux factures Stripe",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {
+    "react": ">=17.0.0"
+  },
+  "required": {
+    "siteId": false,
+    "userId": false
+  },
+  "props": {
+    "title": {
+      "type": "string",
+      "required": false,
+      "default": "Mes Factures",
+      "description": "Titre de la page des factures"
+    },
+    "description": {
+      "type": "string",
+      "required": false,
+      "default": "Consultez et téléchargez vos factures de paiement.",
+      "description": "Description de la page des factures"
+    },
+    "searchPlaceholder": {
+      "type": "string",
+      "required": false,
+      "default": "Rechercher une facture...",
+      "description": "Placeholder pour la barre de recherche"
+    },
+    "noInvoicesMessage": {
+      "type": "string",
+      "required": false,
+      "default": "Vous n'avez pas encore de factures de paiement.",
+      "description": "Message affiché quand il n'y a pas de factures"
+    },
+    "noSearchResultsMessage": {
+      "type": "string",
+      "required": false,
+      "default": "Aucune facture ne correspond à votre recherche.",
+      "description": "Message affiché quand la recherche ne donne aucun résultat"
+    },
+    "loginRequiredMessage": {
+      "type": "string",
+      "required": false,
+      "default": "Vous devez être connecté en tant qu'utilisateur du site pour accéder à vos factures.",
+      "description": "Message affiché quand l'utilisateur n'est pas connecté"
+    },
+    "viewButtonText": {
+      "type": "string",
+      "required": false,
+      "default": "Voir en ligne",
+      "description": "Texte du bouton pour voir la facture"
+    },
+    "downloadButtonText": {
+      "type": "string",
+      "required": false,
+      "default": "PDF",
+      "description": "Texte du bouton pour télécharger la facture"
+    }
+  },
+  "features": [
+    "Affichage automatique des factures Stripe de l'utilisateur connecté",
+    "Authentification via cookie utilisateur_token",
+    "Recherche en temps réel dans les factures",
+    "Statistiques des factures (total, montant, payées, en attente)",
+    "Boutons d'action directs vers Stripe (voir en ligne et télécharger PDF)",
+    "Gestion des erreurs et messages d'état",
+    "Interface responsive et moderne"
+  ],
+  "apiEndpoints": [
+    "/api/sharedServices/invoices",
+    "/api/sharedServices/invoices/[sessionId]"
+  ],
+  "stripeIntegration": {
+    "description": "Intégration directe avec Stripe pour l'affichage et le téléchargement des factures",
+    "features": [
+      "Récupération des clés Stripe depuis la base de données",
+      "Filtrage des factures par email utilisateur",
+      "URLs directes vers l'interface Stripe",
+      "Support des invoices Stripe et sessions de paiement"
+    ]
+  }
+}

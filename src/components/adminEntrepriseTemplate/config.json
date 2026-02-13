@@ -1,0 +1,25 @@
+{
+  "id": "adminEntrepriseTemplate",
+  "name": "Configuration de l'entreprise",
+  "description": "Template pour la gestion et configuration des informations d'entreprise de domiciliation",
+  "type": "admin",
+  "service": "admin",
+  "thumbnail": "/placeholder.svg",
+  "isImported": false,
+  "features": [
+    "Gestion des informations générales de l'entreprise",
+    "Configuration des adresses (centre d'affaires et siège)",
+    "Upload de documents (logo, cachet, KBIS, agrément)",
+    "Gestion des informations légales (SIREN, RCS, arrêté)",
+    "Configuration des taux de commission",
+    "Gestion des formulaires de domiciliation (Particuliers, SCI, Entreprises)",
+    "Visualisation des contrats et attestations PDF",
+    "Interface d'administration complète"
+  ],
+  "props": {
+    "siteId": {
+      "type": "string",
+      "description": "ID du site pour lier les données"
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "name": "ResetPasswordTemplate",
+  "displayName": "Page de réinitialisation de mot de passe",
+  "description": "Composant pour réinitialiser le mot de passe d'un utilisateur",
+  "category": "Authentication",
+  "version": "1.0.0",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "label": "ID du site",
+      "description": "Identifiant du site (optionnel, détecté automatiquement depuis l'URL)",
+      "required": false,
+      "default": ""
+    },
+    "editableElements": {
+      "type": "object",
+      "label": "Éléments éditables",
+      "description": "Textes personnalisables de la page",
+      "required": false,
+      "properties": {
+        "reset-title": {
+          "type": "string",
+          "label": "Titre de la page",
+          "description": "Titre principal affiché sur la page de réinitialisation",
+          "default": "Réinitialiser votre mot de passe"
+        },
+        "reset-subtitle": {
+          "type": "string",
+          "label": "Sous-titre de la page",
+          "description": "Description affichée sous le titre principal",
+          "default": "Choisissez un nouveau mot de passe sécurisé"
+        }
+      }
+    }
+  },
+  "styles": {
+    "backgroundColor": {
+      "type": "string",
+      "label": "Couleur d'arrière-plan",
+      "default": "#f9fafb"
+    },
+    "textColor": {
+      "type": "string",
+      "label": "Couleur du texte",
+      "default": "#111827"
+    },
+    "primaryColor": {
+      "type": "string",
+      "label": "Couleur primaire",
+      "default": "#111827"
+    },
+    "borderColor": {
+      "type": "string",
+      "label": "Couleur des bordures",
+      "default": "#e5e7eb"
+    }
+  },
+  "dependencies": [],
+  "tags": [
+    "authentication",
+    "password",
+    "reset",
+    "form",
+    "user"
+  ],
+  "author": "Majoli Hub",
+  "license": "MIT"
+}

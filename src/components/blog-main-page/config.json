@@ -1,0 +1,74 @@
+{
+  "id": "blog-main-page",
+  "name": "Blog Main Page",
+  "type": "section",
+  "version": 1,
+  "description": "Main blog page with article cards, metadata and keywords for a lawyer website.",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {
+    "lucide-react": "^0.462.0"
+  },
+  "required": {
+    "primaryColor": true,
+    "secondaryColor": true,
+    "fontFamily": true,
+    "secondaryFontFamily": true
+  },
+  "props": {
+    "primaryColor": {
+      "type": "string",
+      "required": true,
+      "default": "#0A6251"
+    },
+    "secondaryColor": {
+      "type": "string",
+      "required": true,
+      "default": "#F9FAFB"
+    },
+    "textColor": {
+      "type": "string",
+      "required": true,
+      "default": "#374151"
+    },
+    "titleColor": {
+      "type": "string",
+      "required": true,
+      "default": "#0A6251"
+    },
+    "fontFamily": {
+      "type": "string",
+      "required": true,
+      "default": "serif",
+      "label": "Primary font (Titles)"
+    },
+    "secondaryFontFamily": {
+      "type": "string",
+      "required": true,
+      "default": "Poppins",
+      "label": "Secondary font (Body text)"
+    },
+    "title": {
+      "type": "string",
+      "required": true,
+      "default": "Blog"
+    },
+    "subtitle": {
+      "type": "string",
+      "required": true,
+      "default": "Découvrez nos derniers articles sur le droit pénal et la défense juridique"
+    },
+    "useApi": {
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "label": "Utiliser l'API pour récupérer les articles"
+    },
+    "limit": {
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "label": "Nombre d'articles à afficher"
+    }
+  }
+}

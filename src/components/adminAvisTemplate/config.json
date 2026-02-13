@@ -1,0 +1,31 @@
+{
+  "id": "adminAvisTemplate",
+  "name": "Admin Avis Template",
+  "type": "admin",
+  "service": "admin",
+  "thumbnail": "/placeholder.svg",
+  "description": "Interface d'administration pour la gestion des avis clients",
+  "category": "admin",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "label": "ID du site",
+      "default": "",
+      "required": true
+    }
+  },
+  "editableElements": [
+    {
+      "id": "admin-title",
+      "type": "text",
+      "label": "Titre de l'administration",
+      "default": "Gestion des Avis"
+    },
+    {
+      "id": "admin-subtitle",
+      "type": "text",
+      "label": "Sous-titre",
+      "default": "Modération et gestion des avis clients"
+    }
+  ]
+}

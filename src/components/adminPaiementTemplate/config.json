@@ -1,0 +1,25 @@
+{
+  "id": "adminPaiementTemplate",
+  "name": "Admin Paiements Template",
+  "type": "admin",
+  "service": "admin",
+  "version": 1,
+  "description": "Template d'administration pour la gestion des paiements",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {
+    "react": ">=17.0.0",
+    "lucide-react": "^0.263.1"
+  },
+  "required": {
+    "siteId": true
+  },
+  "props": {
+    "siteId": {
+      "type": "string",
+      "required": true,
+      "description": "ID du site pour récupérer les paiements"
+    }
+  },
+  "active": true
+}

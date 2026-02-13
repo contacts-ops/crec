@@ -1,0 +1,65 @@
+{
+  "id": "contact-levage",
+  "name": "ContactLevage",
+  "type": "section",
+  "version": 1,
+  "description": "Bloc contact avec coordonnées, CTA et carte, conforme MajoliHub",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "required": {
+    "primaryColor": true,
+    "secondaryColor": true,
+    "textColor": true,
+    "backgroundColor": true,
+    "fontFamily": true,
+    "secondaryFontFamily": true,
+
+    "title": true,
+    "description": true,
+    "submitButtonText": true,
+    "nameLabel": true,
+    "phoneLabel": true,
+    "emailLabel": true,
+    "messageLabel": true,
+
+    "phone": true,
+    "email": true,
+    "addressLine1": true,
+    "addressLine2": true,
+
+    "contact1IconType": false,
+    "contact2IconType": false,
+    "contact3IconType": false,
+    "iconColor": false,
+    "mediaUrl4": false,
+    "mediaAlt4": false,
+    "mediaType4": false
+  },
+  "props": {
+    "primaryColor": { "type": "string", "required": true, "default": "#0056B3" },
+    "secondaryColor": { "type": "string", "required": true, "default": "#000000" },
+    "textColor": { "type": "string", "required": true, "default": "#FFFFFF" },
+    "backgroundColor": { "type": "string", "required": true, "default": "#F8F9FA" },
+    "fontFamily": { "type": "string", "required": true, "default": "Oswald" },
+    "secondaryFontFamily": { "type": "string", "required": true, "default": "Poppins" },
+
+    "title": { "type": "string", "required": true, "default": "Contactez-nous" },
+    "submitButtonText": { "type": "string", "required": true, "default": "Envoyer" },
+    "nameLabel": { "type": "string", "required": true, "default": "Nom" },
+    "phoneLabel": { "type": "string", "required": true, "default": "Téléphone" },
+    "emailLabel": { "type": "string", "required": true, "default": "E-mail" },
+    "messageLabel": { "type": "string", "required": true, "default": "Message" },
+    "phone": { "type": "string", "required": true, "default": "09 73 38 30 77" },
+    "email": { "type": "string", "required": true, "default": "contact@apmi-lyon.fr" },
+    "addressLine1": { "type": "string", "required": true, "default": "63 Rue Paul Teste," },
+    "addressLine2": { "type": "string", "required": true, "default": "69120 Vaulx-en-Velin" },
+
+    "contact1IconType": { "type": "string", "required": false, "default": "Mail", "label": "Type d'icône Email" },
+    "contact2IconType": { "type": "string", "required": false, "default": "Phone", "label": "Type d'icône Téléphone" },
+    "contact3IconType": { "type": "string", "required": false, "default": "MapPin", "label": "Type d'icône Adresse" },
+    "iconColor": { "type": "string", "required": false, "default": "#0056B3", "label": "Couleur des icônes" }
+  }
+}
+
+
+

@@ -1,0 +1,86 @@
+{
+  "id": "loginTemplate",
+  "name": "Login Template",
+  "type": "admin",
+  "service": "admin",
+  "thumbnail": "/placeholder.svg",
+  "description": "Template de connexion et d'inscription pour les Utilisateurs avec design moderne et sécurisé",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "label": "ID du site",
+      "default": "",
+      "required": true
+    }
+  },
+  "editableElements": [
+    {
+      "id": "login-title",
+      "type": "text",
+      "label": "Titre de connexion",
+      "default": "Connexion"
+    },
+    {
+      "id": "login-subtitle",
+      "type": "text",
+      "label": "Sous-titre de connexion",
+      "default": "Connectez-vous à votre compte"
+    },
+    {
+      "id": "register-title",
+      "type": "text",
+      "label": "Titre d'inscription",
+      "default": "Inscription"
+    },
+    {
+      "id": "register-subtitle",
+      "type": "text",
+      "label": "Sous-titre d'inscription",
+      "default": "Créez votre compte"
+    },
+    {
+      "id": "forgot-password-text",
+      "type": "text",
+      "label": "Texte mot de passe oublié",
+      "default": "Mot de passe oublié ?"
+    },
+    {
+      "id": "no-account-text",
+      "type": "text",
+      "label": "Texte pas de compte",
+      "default": "Pas encore de compte ?"
+    },
+    {
+      "id": "already-account-text",
+      "type": "text",
+      "label": "Texte déjà un compte",
+      "default": "Déjà un compte ?"
+    }
+  ],
+  "features": [
+    "Connexion sécurisée pour Utilisateurs",
+    "Inscription utilisateur avec validation",
+    "Validation des formulaires en temps réel",
+    "Gestion des erreurs API",
+    "Messages de succès",
+    "Redirection automatique après connexion",
+    "Mot de passe oublié (simulé)",
+    "Design responsive",
+    "Interface moderne",
+    "Sécurité renforcée",
+    "Validation en temps réel",
+    "Messages d'erreur personnalisés",
+    "Cookie séparé pour Utilisateurs"
+  ],
+  "dependencies": [
+    "react",
+    "typescript",
+    "lucide-react",
+    "tailwindcss"
+  ],
+  "apiEndpoints": [
+    "/api/sharedServices/auth/login",
+    "/api/sharedServices/utilisateurs",
+    "/api/sharedServices/auth/logout"
+  ]
+}

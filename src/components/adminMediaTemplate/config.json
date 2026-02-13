@@ -1,0 +1,33 @@
+{
+  "id": "adminMediaTemplate",
+  "name": "Gestionnaire de Médias",
+  "type": "admin",
+  "version": 1,
+  "description": "Interface d'administration pour gérer tous les médias d'un site avec filtres, visualisation et suppression",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {
+    "lucide-react": "^0.263.1",
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-table": "^1.0.0",
+    "@radix-ui/react-pagination": "^1.0.0"
+  },
+  "required": {
+    "siteId": true
+  },
+  "props": {
+    "siteId": {
+      "type": "string",
+      "required": true,
+      "default": "",
+      "description": "ID du site pour lequel gérer les médias"
+    },
+    "siteName": {
+      "type": "string",
+      "required": false,
+      "default": "Mon Site",
+      "description": "Nom du site affiché dans l'interface"
+    }
+  }
+}

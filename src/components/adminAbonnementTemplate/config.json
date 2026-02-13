@@ -1,0 +1,71 @@
+{
+  "name": "Admin Abonnement Template",
+  "description": "Interface d'administration pour gérer les services et abonnements de domiciliation et location de bureaux",
+  "version": "1.0.0",
+  "type": "admin",
+  "service": "admin",
+  "author": "Majoli Hub",
+  "thumbnail": "/placeholder.svg",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "label": "ID du site",
+      "description": "Identifiant unique du site",
+      "required": true,
+      "default": ""
+    },
+    "editableElements": {
+      "type": "object",
+      "label": "Éléments éditables",
+      "description": "Configuration des éléments éditables",
+      "required": false,
+      "default": {}
+    }
+  },
+  "features": {
+    "services": {
+      "enabled": true,
+      "description": "Gestion des services de domiciliation et location de bureaux"
+    },
+    "abonnements": {
+      "enabled": true,
+      "description": "Gestion des abonnements avec services inclus"
+    },
+    "crud": {
+      "enabled": true,
+      "description": "Création, modification et suppression des services et abonnements"
+    },
+    "caracteristiques": {
+      "enabled": true,
+      "description": "Gestion dynamique des caractéristiques"
+    },
+    "types": {
+      "enabled": true,
+      "description": "Support des types domiciliation et location de bureaux"
+    }
+  },
+  "dependencies": {
+    "hooks": [
+      "use-services",
+      "use-abonnements"
+    ],
+    "models": [
+      "Service",
+      "Abonnement"
+    ],
+    "components": [
+      "Button",
+      "Input",
+      "Textarea",
+      "Label",
+      "Switch",
+      "Select"
+    ]
+  },
+  "settings": {
+    "autoSave": false,
+    "confirmDelete": true,
+    "showSuccessMessages": true,
+    "showErrorMessages": true
+  }
+}

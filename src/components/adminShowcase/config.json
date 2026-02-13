@@ -1,0 +1,29 @@
+{
+    "id": "adminShowcase",
+    "name": "Admin Showcase",
+    "type": "admin",
+    "service": "admin-showcase",
+    "version": 1,
+    "author": "MajoliHub",
+    "thumbnail": "/placeholder.svg",
+    "dependencies": {
+      "lucide-react": "^0.263.1"
+    },
+    "required": {
+      "siteId": false
+    },
+    "props": {
+      "siteId": {
+        "type": "string",
+        "required": false,
+        "default": "",
+        "description": "ID du site pour filtrer les produits showcase"
+      }
+    },
+    "description": "Interface d'administration pour gérer les produits showcase par site",
+    "category": "admin",
+    "tags": [
+      "admin",
+      "showcase"
+    ]
+  }

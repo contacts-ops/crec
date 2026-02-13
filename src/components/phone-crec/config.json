@@ -1,0 +1,28 @@
+{
+  "id": "phone-crec",
+  "name": "Phone CREC",
+  "type": "bande",
+  "version": 1,
+  "description": "Bandeau conseil : titres, champs Nom et Téléphone, envoi vers adminPhoneTemplate",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {},
+  "required": {},
+  "props": {
+    "fontFamily": { "type": "string", "required": false, "default": "Inter", "label": "Police" },
+    "title1": { "type": "string", "required": false, "default": "Besoin d'un conseil ?", "label": "Titre 1" },
+    "title2": { "type": "string", "required": false, "default": "Entrez votre numéro et on s'occupe du reste.", "label": "Titre 2" },
+    "subtitle": { "type": "string", "required": false, "default": "Un expert vous recontacte dans les plus brefs délais", "label": "Sous-titre" },
+    "title1Color": { "type": "string", "required": false, "default": "#FFFFFF", "label": "Couleur titre 1" },
+    "title2Color": { "type": "string", "required": false, "default": "#FFFFFF", "label": "Couleur titre 2" },
+    "subtitleColor": { "type": "string", "required": false, "default": "#FFFFFF", "label": "Couleur sous-titre" },
+    "backgroundColor": { "type": "string", "required": false, "default": "#1E3A5F", "label": "Couleur de fond" },
+    "inputPlaceholderName": { "type": "string", "required": false, "default": "Nom", "label": "Placeholder nom" },
+    "inputPlaceholderPhone": { "type": "string", "required": false, "default": "(+216) 71 324 567", "label": "Placeholder tél" },
+    "inputBgColor": { "type": "string", "required": false, "default": "#E8E8E8", "label": "Couleur champs" },
+    "buttonArrowColor": { "type": "string", "required": false, "default": "#2C4270", "label": "Couleur flèche" },
+    "mediaUrl1": { "type": "string", "required": false, "default": "", "label": "Image de fond" },
+    "mediaAlt1": { "type": "string", "required": false, "default": "Fond bandeau conseil", "label": "Alt image" }
+  },
+  "active": true
+}

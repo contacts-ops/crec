@@ -1,0 +1,94 @@
+{
+  "type": "admin",
+  "service": "admin",
+  "name": "Client Courier Template",
+  "description": "Template pour la consultation du courrier digitalisé via service de domiciliation",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "description": "ID du site",
+      "required": true
+    },
+    "userId": {
+      "type": "string",
+      "description": "ID de l'utilisateur (optionnel pour filtrer)",
+      "required": false
+    }
+  },
+  "editableElements": {
+    "title": "Mon Courrier Digitalisé",
+    "description": "Consultez votre courrier reçu via notre service de domiciliation.",
+    "searchPlaceholder": "Rechercher un document...",
+    "exportButton": "Exporter tout"
+  },
+  "features": [
+    "Consultation du courrier digitalisé depuis la base de données",
+    "Recherche avancée par titre et description",
+    "Téléchargement des fichiers PDF et images",
+    "Export des données en CSV",
+    "Statistiques en temps réel",
+    "Interface responsive et moderne",
+    "Service de domiciliation intégré"
+  ],
+  "apiEndpoints": {
+    "getCourierItems": "/api/sharedServices/courriers?siteId={siteId}",
+    "updateCourierItem": "/api/sharedServices/courriers/{itemId}",
+    "getCourierItem": "/api/sharedServices/courriers/{itemId}"
+  },
+  "database": {
+    "collections": [
+      {
+        "name": "courriers",
+        "fields": {
+          "titre": "string (required)",
+          "description": "string (optional)",
+          "fichier": {
+            "nom": "string",
+            "url": "string",
+            "type": "enum (pdf|image)",
+            "taille": "number"
+          },
+          "siteId": "string (required, indexed)",
+          "utilisateurId": "string (required, ref: utilisateurs)",
+          "dateCreation": "date",
+          "dateModification": "date"
+        }
+      }
+    ]
+  },
+  "permissions": {
+    "required": [
+      "user"
+    ],
+    "actions": {
+      "read": [
+        "user"
+      ],
+      "update": [
+        "user"
+      ]
+    }
+  },
+  "ui": {
+    "components": [
+      "Button",
+      "Badge",
+      "Modal",
+      "Search",
+      "Filters",
+      "Stats"
+    ],
+    "icons": [
+      "Mail",
+      "Download",
+      "Eye",
+      "CheckCircle",
+      "AlertCircle",
+      "Clock",
+      "Search",
+      "Calendar",
+      "FileText",
+      "Image"
+    ]
+  }
+}

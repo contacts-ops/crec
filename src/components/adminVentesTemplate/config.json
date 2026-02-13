@@ -1,0 +1,49 @@
+{
+  "id": "adminVentesTemplate",
+  "name": "Admin - Gestion des Ventes",
+  "type": "admin",
+  "category": "Administration",
+  "description": "Interface d'administration pour la gestion et le suivi des ventes",
+  "thumbnail": "/placeholder.svg",
+  "tags": [
+    "admin",
+    "ventes",
+    "stripe",
+    "analytics",
+    "rapport"
+  ],
+  "framework": "React",
+  "dependencies": [
+    "@/components/ui/button",
+    "@/components/ui/input",
+    "@/components/ui/label",
+    "@/components/ui/dialog",
+    "@/components/ui/table",
+    "@/components/ui/badge",
+    "lucide-react"
+  ],
+  "props": {
+    "siteId": {
+      "type": "string",
+      "description": "Identifiant du site",
+      "required": false
+    },
+    "editableElements": {
+      "type": "object",
+      "description": "Éléments modifiables du composant",
+      "required": false,
+      "default": {}
+    }
+  },
+  "features": [
+    "Statistiques de vente en temps réel",
+    "Tableau des ventes avec filtrage et recherche",
+    "Export des données (CSV, Excel, PDF)",
+    "Intégration Stripe",
+    "Actions rapides et gestion des rapports"
+  ],
+  "editableElements": {
+    "title": "Gestion des Ventes",
+    "subtitle": "Suivi et analyse des ventes de vos services de domiciliation"
+  }
+}

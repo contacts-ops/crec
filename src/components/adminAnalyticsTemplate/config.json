@@ -1,0 +1,54 @@
+{
+  "id": "adminAnalyticsTemplate",
+  "name": "Analytics Template",
+  "type": "admin",
+  "service": "analytics",
+  "thumbnail": "/placeholder.svg",
+  "description": "Interface d'administration pour les analytics et statistiques du site en temps réel",
+  "category": "admin",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "label": "ID du site",
+      "default": "",
+      "required": true
+    }
+  },
+  "editableElements": [
+    {
+      "id": "analytics-title",
+      "type": "text",
+      "label": "Titre de l'analytics",
+      "default": "Analytics en Temps Réel"
+    },
+    {
+      "id": "analytics-subtitle",
+      "type": "text",
+      "label": "Sous-titre",
+      "default": "Suivez les performances de votre site en temps réel"
+    }
+  ],
+  "features": [
+    "Statistiques en temps réel",
+    "Graphiques interactifs",
+    "Métriques de performance",
+    "Analyse des visiteurs",
+    "Pages les plus visitées",
+    "Sources de trafic",
+    "Comportement utilisateur",
+    "Interface responsive",
+    "Données en temps réel"
+  ],
+  "dependencies": [
+    "lucide-react",
+    "react",
+    "typescript",
+    "recharts"
+  ],
+  "apiEndpoints": [
+    "/api/analytics/[siteId]",
+    "/api/analytics/[siteId]/realtime",
+    "/api/analytics/[siteId]/visitors",
+    "/api/analytics/[siteId]/pages"
+  ]
+}

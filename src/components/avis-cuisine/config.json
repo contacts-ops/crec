@@ -1,0 +1,237 @@
+{
+  "id": "avis-cuisine",
+  "name": "Avis Cuisine",
+  "type": "service",
+  "service": "avis",
+  "version": "1.0.0",
+  "description": "Section d'avis clients avec slider automatique, cartes de témoignages et bandeau partenaires.",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {},
+  "required": {
+    "backgroundColor": true,
+    "fontFamily": true,
+    "secondaryFontFamily": true
+  },
+  "props": {
+    "backgroundColor": {
+      "type": "string",
+      "required": true,
+      "default": "#FFFFFF",
+      "label": "Couleur de fond de la page"
+    },
+    "cardTypeAColor": {
+      "type": "string",
+      "required": false,
+      "default": "#F3F3F3",
+      "label": "Couleur de fond des cartes type A (gris clair)"
+    },
+    "cardTypeBColor": {
+      "type": "string",
+      "required": false,
+      "default": "#122D42",
+      "label": "Couleur de fond des cartes type B (bleu nuit)"
+    },
+    "buttonBackgroundColor": {
+      "type": "string",
+      "required": false,
+      "default": "#F4F4F4",
+      "label": "Couleur de fond des boutons de navigation"
+    },
+    "textColor": {
+      "type": "string",
+      "required": false,
+      "default": "#1A1A1A",
+      "label": "Couleur du texte sur fond clair"
+    },
+    "textOnDarkColor": {
+      "type": "string",
+      "required": false,
+      "default": "#FFFFFF",
+      "label": "Couleur du texte sur fond sombre"
+    },
+    "starColorOnLight": {
+      "type": "string",
+      "required": false,
+      "default": "#000000",
+      "label": "Couleur des étoiles sur fond clair"
+    },
+    "starColorOnDark": {
+      "type": "string",
+      "required": false,
+      "default": "#FFFFFF",
+      "label": "Couleur des étoiles sur fond sombre"
+    },
+    "arrowColor": {
+      "type": "string",
+      "required": false,
+      "default": "#1A1A1A",
+      "label": "Couleur des flèches de navigation"
+    },
+    "fontFamily": {
+      "type": "string",
+      "required": true,
+      "default": "Inter",
+      "label": "Police principale (Sans-Serif)"
+    },
+    "secondaryFontFamily": {
+      "type": "string",
+      "required": true,
+      "default": "Bodoni",
+      "label": "Police secondaire (Serif Italique)"
+    },
+    "titleText": {
+      "type": "string",
+      "required": false,
+      "default": "Nos Avis Client",
+      "label": "Titre principal"
+    },
+    "googleBadgeText": {
+      "type": "string",
+      "required": false,
+      "default": "Noté 5/5 sur",
+      "label": "Texte du badge Google"
+    },
+    "reviewsCountText": {
+      "type": "string",
+      "required": false,
+      "default": "Basé sur 35 avis",
+      "label": "Texte du nombre d'avis"
+    },
+    "partnersTitle": {
+      "type": "string",
+      "required": false,
+      "default": "Nos entreprises partenaires qui nous font confiance",
+      "label": "Titre du bandeau partenaires"
+    },
+    "reviews": {
+      "type": "array",
+      "required": false,
+      "default": [
+        {
+          "id": 1,
+          "name": "Stéphane LERICHE",
+          "text": "Merci pour la rénovation complète de ma salle de bain. Travaux excellents, équipe très sympathique, produits de qualité et tarif correct. Je suis très content depuis que j'ai cette belle salle de bain. Merci.",
+          "rating": 5,
+          "cardType": "A"
+        },
+        {
+          "id": 2,
+          "name": "Marie DUPONT",
+          "text": "Excellente expérience avec cette équipe. Rénovation de cuisine impeccable, respect des délais et conseils précieux. Je recommande vivement !",
+          "rating": 5,
+          "cardType": "B"
+        },
+        {
+          "id": 3,
+          "name": "Pierre MARTIN",
+          "text": "Travaux de très grande qualité, équipe professionnelle et à l'écoute. Le résultat final dépasse nos attentes. Merci pour ce beau travail !",
+          "rating": 5,
+          "cardType": "A"
+        }
+      ],
+      "label": "Liste des avis clients"
+    },
+    "partners": {
+      "type": "array",
+      "required": false,
+      "default": [
+        {
+          "id": 1,
+          "name": "Miele",
+          "logoUrl": "",
+          "logoAlt": "Logo Miele"
+        },
+        {
+          "id": 2,
+          "name": "PORCELANOSA",
+          "logoUrl": "",
+          "logoAlt": "Logo PORCELANOSA"
+        },
+        {
+          "id": 3,
+          "name": "agensia",
+          "logoUrl": "",
+          "logoAlt": "Logo agensia"
+        },
+        {
+          "id": 4,
+          "name": "ESPACE Aubade",
+          "logoUrl": "",
+          "logoAlt": "Logo ESPACE Aubade"
+        }
+      ],
+      "label": "Liste des partenaires"
+    },
+    "mediaUrl1": {
+      "type": "string",
+      "required": false,
+      "default": "",
+      "label": "Logo Google"
+    },
+    "mediaAlt1": {
+      "type": "string",
+      "required": false,
+      "default": "Logo Google",
+      "label": "Texte alternatif logo Google"
+    },
+    "mediaType1": {
+      "type": "string",
+      "required": false,
+      "default": "image",
+      "label": "Type de média logo Google"
+    },
+    "buttonText": {
+      "type": "string",
+      "required": false,
+      "default": "Laissez un avis",
+      "label": "Texte du bouton"
+    },
+    "buttonHref": {
+      "type": "string",
+      "required": false,
+      "default": "#",
+      "label": "Lien du bouton"
+    },
+    "dataSource": {
+      "type": "string",
+      "required": false,
+      "default": "mock",
+      "enum": ["mock", "google", "serpapi"],
+      "label": "Source des avis"
+    },
+    "apiKey": {
+      "type": "string",
+      "required": false,
+      "default": "",
+      "label": "Clé API (Google)"
+    },
+    "placeId": {
+      "type": "string",
+      "required": false,
+      "default": "",
+      "label": "Place ID (Google)"
+    },
+    "reviewsLimit": {
+      "type": "number",
+      "required": false,
+      "default": 20,
+      "min": 1,
+      "max": 100,
+      "label": "Nombre d'avis à charger"
+    },
+    "ratingValue": {
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "label": "Note moyenne"
+    },
+    "ratingCount": {
+      "type": "number",
+      "required": false,
+      "default": 35,
+      "label": "Nombre total d'avis"
+    }
+  },
+  "active": true
+}

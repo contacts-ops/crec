@@ -1,0 +1,154 @@
+{
+  "componentName": "admin-contact",
+  "displayName": "Admin Contact",
+  "description": "Interface d'administration pour gérer les messages de contact",
+  "category": "admin",
+  "version": "1.0.0",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "description": "ID du site",
+      "required": false
+    },
+    "editableElements": {
+      "type": "object",
+      "description": "Éléments éditables",
+      "required": false,
+      "default": {}
+    }
+  },
+  "features": {
+    "contactManagement": {
+      "description": "Gestion complète des messages de contact",
+      "features": [
+        "Liste des messages avec pagination",
+        "Filtrage par statut (nouveau, lu, répondu)",
+        "Recherche par nom, email, sujet",
+        "Visualisation détaillée des messages",
+        "Mise à jour du statut des messages",
+        "Notes administrateur",
+        "Statistiques en temps réel"
+      ]
+    },
+    "emailIntegration": {
+      "description": "Intégration email automatique",
+      "features": [
+        "Envoi automatique d'email à l'admin",
+        "Template HTML personnalisé",
+        "Gestion des erreurs d'envoi",
+        "Configuration SMTP flexible"
+      ]
+    },
+    "databaseStorage": {
+      "description": "Stockage en base de données MongoDB",
+      "features": [
+        "Modèle Contact avec validation",
+        "Index pour les performances",
+        "Timestamps automatiques",
+        "Gestion des erreurs MongoDB"
+      ]
+    }
+  },
+  "apiEndpoints": {
+    "add": {
+      "path": "/api/contacts/add",
+      "method": "POST",
+      "description": "Ajouter un nouveau contact avec envoi d'email"
+    },
+    "list": {
+      "path": "/api/contacts/list",
+      "method": "GET",
+      "description": "Lister les contacts avec filtres et pagination"
+    },
+    "updateStatus": {
+      "path": "/api/contacts/[id]/status",
+      "method": "PATCH",
+      "description": "Mettre à jour le statut d'un contact"
+    }
+  },
+  "database": {
+    "model": "Contact",
+    "schema": {
+      "name": "string (required)",
+      "firstName": "string (required)",
+      "email": "string (required, validated)",
+      "subject": "string (required)",
+      "message": "string (required)",
+      "submittedAt": "date (default: now)",
+      "status": "enum (new, read, replied)",
+      "adminNotes": "string (optional)",
+      "timestamps": "createdAt, updatedAt"
+    }
+  },
+  "email": {
+    "template": "HTML personnalisé",
+    "recipient": "ADMIN_EMAIL env variable",
+    "subject": "Nouveau message de contact - {subject}",
+    "smtp": {
+      "host": "SMTP_HOST env variable",
+      "port": "SMTP_PORT env variable",
+      "user": "SMTP_USER env variable",
+      "pass": "SMTP_PASS env variable"
+    }
+  },
+  "ui": {
+    "statistics": {
+      "total": "Nombre total de messages",
+      "new": "Messages non lus",
+      "read": "Messages lus",
+      "replied": "Messages répondus"
+    },
+    "filters": {
+      "search": "Recherche textuelle",
+      "status": "Filtre par statut",
+      "refresh": "Actualisation des données"
+    },
+    "table": {
+      "columns": [
+        "Contact (nom, email)",
+        "Sujet",
+        "Date d'envoi",
+        "Statut",
+        "Actions"
+      ]
+    },
+    "modal": {
+      "contactInfo": "Informations du contact",
+      "message": "Contenu du message",
+      "adminNotes": "Notes administrateur",
+      "statusActions": "Boutons de changement de statut"
+    }
+  },
+  "statuses": {
+    "new": {
+      "color": "blue",
+      "icon": "Mail",
+      "text": "Nouveau"
+    },
+    "read": {
+      "color": "yellow",
+      "icon": "Eye",
+      "text": "Lu"
+    },
+    "replied": {
+      "color": "green",
+      "icon": "CheckCircle",
+      "text": "Répondu"
+    }
+  },
+  "environmentVariables": {
+    "MONGODB_URI": "URI de connexion MongoDB",
+    "ADMIN_EMAIL": "Email de l'administrateur",
+    "SMTP_HOST": "Serveur SMTP",
+    "SMTP_PORT": "Port SMTP",
+    "SMTP_USER": "Utilisateur SMTP",
+    "SMTP_PASS": "Mot de passe SMTP"
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.7",
+    "@types/nodemailer": "^6.4.19",
+    "mongoose": "^8.16.4",
+    "lucide-react": "^0.263.0"
+  },
+  "thumbnail": "/placeholder.svg"
+}

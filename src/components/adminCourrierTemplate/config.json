@@ -1,0 +1,78 @@
+{
+  "name": "Admin Courrier Template",
+  "description": "Interface d'administration pour la gestion des courriers et documents des clients",
+  "type": "admin",
+  "category": "Admin",
+  "props": {
+    "siteId": {
+      "type": "string",
+      "description": "Identifiant unique du site",
+      "required": true
+    },
+    "editableElements": {
+      "type": "object",
+      "description": "Éléments éditables du composant",
+      "required": false,
+      "default": {}
+    }
+  },
+  "features": [
+    "Gestion CRUD complète des courriers",
+    "Upload de fichiers PDF et images",
+    "Association avec les utilisateurs",
+    "Recherche et filtrage avancés",
+    "Statistiques en temps réel",
+    "Interface responsive",
+    "Pagination automatique",
+    "Export des données"
+  ],
+  "dependencies": {
+    "api": [
+      "/api/sharedServices/courriers",
+      "/api/sharedServices/utilisateurs"
+    ],
+    "ui": [
+      "@/components/ui/button",
+      "@/components/ui/input"
+    ],
+    "icons": [
+      "lucide-react"
+    ]
+  },
+  "database": {
+    "collections": [
+      {
+        "name": "courriers",
+        "fields": {
+          "titre": "string (required)",
+          "description": "string (optional)",
+          "fichier": {
+            "nom": "string",
+            "url": "string",
+            "type": "enum (pdf|image)",
+            "taille": "number"
+          },
+          "siteId": "string (required, indexed)",
+          "utilisateurId": "string (required, ref: utilisateurs)",
+          "dateCreation": "date",
+          "dateModification": "date"
+        }
+      }
+    ]
+  },
+  "permissions": {
+    "required": [
+      "admin",
+      "editor"
+    ],
+    "actions": {
+      "create": "admin",
+      "read": [
+        "admin",
+        "editor"
+      ],
+      "update": "admin",
+      "delete": "admin"
+    }
+  }
+}

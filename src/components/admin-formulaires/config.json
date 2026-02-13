@@ -1,0 +1,129 @@
+{
+  "id": "admin-formulaires",
+  "name": "Administration des Formulaires",
+  "type": "admin",
+  "service": "form",
+  "version": 1,
+  "description": "Interface d'administration pour gérer tous les formulaires soumis avec filtres et pagination.",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {
+    "react": "^18.0.0"
+  },
+  "required": {
+    "primaryColor": true,
+    "secondaryColor": true,
+    "textColor": true,
+    "fontFamily": true
+  },
+  "props": {
+    "primaryColor": {
+      "type": "string",
+      "required": true,
+      "default": "#E7461E",
+      "description": "Couleur primaire du composant"
+    },
+    "secondaryColor": {
+      "type": "string",
+      "required": true,
+      "default": "#FF6B35",
+      "description": "Couleur secondaire du composant"
+    },
+    "textColor": {
+      "type": "string",
+      "required": true,
+      "default": "#222222",
+      "description": "Couleur du texte"
+    },
+    "fontFamily": {
+      "type": "string",
+      "required": true,
+      "default": "Inter, system-ui, sans-serif",
+      "description": "Police principale"
+    },
+    "title": {
+      "type": "string",
+      "required": false,
+      "default": "Gestion des Formulaires",
+      "description": "Titre principal de la page"
+    },
+    "subtitle": {
+      "type": "string",
+      "required": false,
+      "default": "Consultez et gérez tous les formulaires soumis",
+      "description": "Sous-titre de la page"
+    },
+    "enableSearch": {
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Activer la barre de recherche"
+    },
+    "enablePagination": {
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Activer la pagination"
+    },
+    "enableStatusFilter": {
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Activer le filtre par statut"
+    },
+    "itemsPerPage": {
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "description": "Nombre d'éléments par page"
+    },
+    "enableDomiciliationType": {
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Activer la sélection du type de domiciliation"
+    },
+    "domiciliationTypeTitle": {
+      "type": "string",
+      "required": false,
+      "default": "Type de domiciliation",
+      "description": "Titre de la section type de domiciliation"
+    },
+    "domiciliationTypeLabel": {
+      "type": "string",
+      "required": false,
+      "default": "Choisissez le type de domiciliation",
+      "description": "Label pour la sélection du type de domiciliation"
+    },
+    "domiciliationTypeCreationLabel": {
+      "type": "string",
+      "required": false,
+      "default": "Création d'une nouvelle entreprise",
+      "description": "Label pour l'option création d'entreprise"
+    },
+    "domiciliationTypeChangementLabel": {
+      "type": "string",
+      "required": false,
+      "default": "Changement de siège social",
+      "description": "Label pour l'option changement de siège"
+    },
+    "currentSiretLabel": {
+      "type": "string",
+      "required": false,
+      "default": "SIRET actuel",
+      "description": "Label pour le champ SIRET actuel"
+    },
+    "currentSiretPlaceholder": {
+      "type": "string",
+      "required": false,
+      "default": "123 456 789 00012",
+      "description": "Placeholder pour le champ SIRET actuel"
+    },
+    "currentSiretRequired": {
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Le SIRET est-il requis pour un changement de siège"
+    }
+  }
+}
