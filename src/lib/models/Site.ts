@@ -113,6 +113,10 @@ export interface ISite extends Document {
 
   // Configuration E-commerce Stripe (séparée de la config Stripe partagée)
   ecommerce?: {
+    // Mode des prix : HT (hors taxes, défaut) ou TTC (toutes taxes comprises)
+    priceMode?: "HT" | "TTC";
+    // Taux de TVA (ex: 0.2 = 20%), utilisé uniquement en mode HT
+    vatRate?: number;
     // Clés Stripe pour le module e-commerce uniquement
     testPublicKey?: string;
     testSecretKey?: string;
@@ -348,6 +352,8 @@ const SiteSchema = new Schema<ISite>({
 
   // Configuration E-commerce Stripe (séparée de la config Stripe partagée)
   ecommerce: {
+    priceMode: { type: String, enum: ["HT", "TTC"], default: "HT" },
+    vatRate: { type: Number, default: 0.2 },
     // Clés Stripe pour le module e-commerce uniquement
     testPublicKey: { type: String },
     testSecretKey: { type: String },

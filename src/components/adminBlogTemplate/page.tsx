@@ -227,23 +227,26 @@ export default function AdminBlogTemplate({
   const validateArticleData = (data: { titre: string; contenu: string; tags: string; image: string }) => {
     const errors: string[] = [];
 
-    if (!data.titre || data.titre.trim().length === 0) {
+    const titre = data.titre ?? "";
+    if (!titre || titre.trim().length === 0) {
       errors.push("Le titre est requis");
-    } else if (data.titre.trim().length < 3) {
+    } else if (titre.trim().length < 3) {
       errors.push("Le titre doit contenir au moins 3 caractères");
-    } else if (data.titre.trim().length > 100) {
+    } else if (titre.trim().length > 100) {
       errors.push("Le titre ne doit pas dépasser 100 caractères");
     }
 
-    if (!data.contenu || data.contenu.trim().length === 0) {
+    const contenu = data.contenu ?? "";
+    if (!contenu || contenu.trim().length === 0) {
       errors.push("Le contenu est requis");
-    } else if (data.contenu.trim().length < 10) {
+    } else if (contenu.trim().length < 10) {
       errors.push("Le contenu doit contenir au moins 10 caractères");
     }
 
     // Validation des tags
-    if (data.tags) {
-      const tags = data.tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0);
+    const tagsStr = data.tags ?? "";
+    if (tagsStr) {
+      const tags = tagsStr.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0);
       if (tags.length > 10) {
         errors.push("Vous ne pouvez pas ajouter plus de 10 tags");
       }
@@ -572,9 +575,9 @@ export default function AdminBlogTemplate({
   const handleEditArticle = (article: Article) => {
     setSelectedArticle(article);
     setEditForm({
-      titre: article.title,
-      contenu: article.content,
-      tags: article.keywords.join(", "),
+      titre: article.title ?? "",
+      contenu: article.content ?? "",
+      tags: article.keywords?.join(", ") ?? "",
       image: Array.isArray(article.image) ? (article.image[0] || "") : (typeof article.image === 'string' ? article.image : "")
     });
     setShowEditModal(true);
@@ -601,9 +604,9 @@ export default function AdminBlogTemplate({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            title: editForm.titre.trim(),
-            content: editForm.contenu.trim(),
-            keywords: editForm.tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0),
+            title: (editForm.titre ?? "").trim(),
+            content: (editForm.contenu ?? "").trim(),
+            keywords: (editForm.tags ?? "").split(",").map(tag => tag.trim()).filter(tag => tag.length > 0),
             image: editForm.image
           }),
         });
@@ -1341,7 +1344,7 @@ export default function AdminBlogTemplate({
                       <div className="border border-gray-300 rounded-lg">
                         <Editor
                           {...TINYMCE_CONFIG}
-                          value={editForm.contenu}
+                          value={editForm.contenu ?? ""}
                           onEditorChange={(content: string) => setEditForm({ ...editForm, contenu: content })}
                         />
                       </div>
@@ -1351,7 +1354,7 @@ export default function AdminBlogTemplate({
                   <div className="flex gap-3 mt-6">
                     <button
                       onClick={handleSaveEdit}
-                      disabled={!editForm.titre.trim() || !editForm.contenu.trim() || !editForm.image || String(editForm.image).trim().length === 0}
+                      disabled={!(editForm.titre ?? "").trim() || !(editForm.contenu ?? "").trim() || !editForm.image || String(editForm.image).trim().length === 0}
                       className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg font-medium transition-colors"
                     >
                       Sauvegarder

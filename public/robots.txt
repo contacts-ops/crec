@@ -5,8 +5,11 @@ Allow: /article/
 Allow: /contact/
 Allow: /landing-client/
 Allow: /mediatheque/
+Allow: /mentions-legales/
 Allow: /nos-services/
+Allow: /politique-de-confidentialite/
 Allow: /qui-sommes-nous/
+Allow: /termes-et-conditions/
 
 # Routes techniques / back-office à ne pas indexer
 Disallow: /src/

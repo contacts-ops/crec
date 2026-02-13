@@ -24,6 +24,7 @@ import {
   Grid,
   Package,
   ShoppingCart,
+  Phone,
 } from "lucide-react";
 import AdminAvisTemplate from "../adminAvisTemplate/page";
 import AdminPaiementTemplate from "../adminPaiementTemplate/page";
@@ -39,6 +40,7 @@ import AdminAbonnementTemplate from "../adminAbonnementTemplate/page";
 import AdminShowcase from "../adminShowcase/page";
 import AdminCourrierTemplate from "../adminCourrierTemplate/page";
 import AdminEcommerceTemplate from "../adminEcommerceTemplate/page" // Test ecommerce
+import AdminPhoneTemplate from "../adminPhoneTemplate/page";
 
 
 import FormulairesAdmin from "../admin-formulaires/page";
@@ -91,6 +93,7 @@ export default function AdminTemplate({
   const [hasAnalyticsComponents, setHasAnalyticsComponents] = useState(false);
   const [hasDomiciliationService, setHasDomiciliationService] = useState(false);
   const [hasShowcaseComponents, setHasShowcaseComponents] = useState(false);
+  const [hasPhoneComponents, setHasPhoneComponents] = useState(false);
   const [domiciliationSubMenuOpen, setDomiciliationSubMenuOpen] = useState(false);
   const [paiementSubMenuOpen, setPaiementSubMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -226,6 +229,12 @@ export default function AdminTemplate({
       icon: <ShoppingCart className="w-5 h-5" />,
       isActive: false,
     },
+    {
+      id: "phone",
+      name: "Numéros (conseil)",
+      icon: <Phone className="w-5 h-5" />,
+      isActive: false,
+    },
   ];
 
   // Fonction pour détecter les services actifs
@@ -243,6 +252,7 @@ export default function AdminTemplate({
       setHasAnalyticsComponents(true);
       setHasDomiciliationService(true);
       setHasShowcaseComponents(true);
+      setHasPhoneComponents(true);
       console.log("✅ Tous les services activés en mode démo, y compris domiciliation");
       return;
     }
@@ -283,6 +293,7 @@ export default function AdminTemplate({
       let hasPhototheque = false;
       let hasDomiciliation = false;
       let hasShowcase = false;
+      let hasPhone = false;
       // Parcourir toutes les pages et leurs composants
       pages.forEach((page: IPagePopulated) => {
         if (page.bandes && Array.isArray(page.bandes)) {
@@ -447,6 +458,18 @@ export default function AdminTemplate({
               hasShowcase = true;
               detectedServices.add("showcase");
             }
+
+            // detect phone
+            if (
+              bande.service === "phone" ||
+              (bande.abstractBandeId?.service && bande.abstractBandeId.service.includes("phone")) ||
+              (bande.abstractBandeId?.originalId && bande.abstractBandeId.originalId.includes("phone")) ||
+              (bande.abstractBandeId?.originalId && bande.abstractBandeId.originalId.toLowerCase().includes("phone"))
+            ) {
+              hasPhone = true;
+              detectedServices.add("phone");
+              console.log("Composant phone détecté");
+            }
           });
         }
       });
@@ -458,6 +481,7 @@ export default function AdminTemplate({
       setHasContactComponents(hasContact);
       setHasRdvComponents(hasRdv);
       setHasEcommerceComponents(hasEcommerce)
+      setHasPhoneComponents(hasPhone);
       setHasMediaComponents(hasPhototheque);
       setHasAnalyticsComponents(hasAnalytics);
       setHasPhotothequeComponents(hasPhototheque);
@@ -597,6 +621,8 @@ export default function AdminTemplate({
         ? hasDomiciliationService
         : service.id === "showcase"
         ? hasShowcaseComponents
+        : service.id === "phone"
+        ? hasPhoneComponents
         : activeServices.has(service.id),
   }));
   // Tri alphabétique des services par nom (insensible à la casse, locale fr)
@@ -637,6 +663,10 @@ export default function AdminTemplate({
 
     if (activeService === "ecommerce" && hasEcommerceComponents) {
       return <AdminEcommerceTemplate />;
+    }
+
+    if (activeService === "phone" && hasPhoneComponents) {
+      return <AdminPhoneTemplate siteId={siteId} />;
     }
 
     if (activeService === "users") {

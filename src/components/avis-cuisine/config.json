@@ -11,7 +11,9 @@
   "required": {
     "backgroundColor": true,
     "fontFamily": true,
-    "secondaryFontFamily": true
+    "secondaryFontFamily": true,
+    "titleFontFamily": false,
+    "titleFontFamilySecond": false
   },
   "props": {
     "backgroundColor": {
@@ -36,7 +38,13 @@
       "type": "string",
       "required": false,
       "default": "#F4F4F4",
-      "label": "Couleur de fond des boutons de navigation"
+      "label": "Couleur de fond du bouton"
+    },
+    "buttonTextColor": {
+      "type": "string",
+      "required": false,
+      "default": "#1A1A1A",
+      "label": "Couleur du texte du bouton"
     },
     "textColor": {
       "type": "string",
@@ -68,6 +76,12 @@
       "default": "#1A1A1A",
       "label": "Couleur des flèches de navigation"
     },
+    "titleColor": {
+      "type": "string",
+      "required": false,
+      "default": "#1A1A1A",
+      "label": "Couleur du titre de la bande"
+    },
     "fontFamily": {
       "type": "string",
       "required": true,
@@ -79,6 +93,18 @@
       "required": true,
       "default": "Bodoni",
       "label": "Police secondaire (Serif Italique)"
+    },
+    "titleFontFamily": {
+      "type": "string",
+      "required": false,
+      "default": "Outfit",
+      "label": "Police du titre (1ère partie)"
+    },
+    "titleFontFamilySecond": {
+      "type": "string",
+      "required": false,
+      "default": "Outfit",
+      "label": "Police du titre (2e partie)"
     },
     "titleText": {
       "type": "string",
@@ -231,6 +257,12 @@
       "required": false,
       "default": 35,
       "label": "Nombre total d'avis"
+    },
+    "cardRounded": {
+      "type": "string",
+      "required": false,
+      "default": "8px",
+      "label": "Coins arrondis des cartes (ex: 8px, 12px, 0)"
     }
   },
   "active": true

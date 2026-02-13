@@ -48,6 +48,36 @@ export function computeShippingCost(
   return d.pickupCost
 }
 
+/** Cart item shape for per-product delivery: quantity + optional per-unit override from product */
+export interface CartItemForShipping {
+  quantity: number
+  productId?: { deliveryCostOverride?: number } | null
+}
+
+/**
+ * Compute shipping cost with optional per-product delivery overrides.
+ * For each item: uses product.deliveryCostOverride if set, otherwise site per-item rate.
+ * Pickup: returns pickupCost only (no per-item).
+ */
+export function computeShippingCostFromItems(
+  deliveryOptions: DeliveryOptions | null | undefined,
+  deliveryMethod: string,
+  items: CartItemForShipping[]
+): number {
+  const d = deliveryOptions || DEFAULT_DELIVERY
+  if (deliveryMethod === "pickup") {
+    return d.pickupCost
+  }
+  const perItem = deliveryMethod === "express" ? d.expressPerItem : d.standardPerItem
+  const base = deliveryMethod === "express" ? d.expressBase : d.standardBase
+  const itemsTotal = items.reduce((sum, item) => {
+    const override = item.productId?.deliveryCostOverride
+    const costPerUnit = typeof override === "number" && override >= 0 ? override : perItem
+    return sum + item.quantity * costPerUnit
+  }, 0)
+  return base + itemsTotal
+}
+
 /** Normalize raw site ecommerce.delivery to DeliveryOptions (with defaults) */
 export function normalizeDeliveryOptions(raw: Record<string, unknown> | null | undefined): DeliveryOptions {
   if (!raw || typeof raw !== "object") return DEFAULT_DELIVERY

@@ -1,0 +1,77 @@
+{
+  "id": "about-crec",
+  "name": "About CREC",
+  "type": "section",
+  "version": "1.0.0",
+  "description": "Section À propos de nous avec texte à gauche et vidéo à droite avec overlay noir modifiable.",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {},
+  "required": {
+    "fontFamily": true,
+    "mediaUrl1": false
+  },
+  "props": {
+    "fontFamily": {
+      "type": "string",
+      "required": true,
+      "default": "Inter",
+      "label": "Police principale"
+    },
+    "titleColor": {
+      "type": "string",
+      "required": false,
+      "default": "#1A202C",
+      "label": "Couleur du titre"
+    },
+    "titleText": {
+      "type": "string",
+      "required": false,
+      "default": "À propos de nous",
+      "label": "Titre"
+    },
+    "paragraph1": {
+      "type": "string",
+      "required": false,
+      "default": "Le cabinet CREC, fondé et dirigé par **Slim Ben Mansour**, est bien plus qu'un simple cabinet comptable. Nous sommes le partenaire stratégique des entrepreneurs qui souhaitent allier rigueur administrative et ambition de croissance.",
+      "label": "Premier paragraphe"
+    },
+    "paragraph2": {
+      "type": "string",
+      "required": false,
+      "default": "Notre philosophie est simple : la comptabilité ne doit plus être une contrainte, mais un outil de pilotage. En combinant expertise humaine et outils digitaux, nous redonnons aux dirigeants leur ressource la plus précieuse : le temps.",
+      "label": "Deuxième paragraphe"
+    },
+    "textColor": {
+      "type": "string",
+      "required": false,
+      "default": "#4A5568",
+      "label": "Couleur du texte"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "required": false,
+      "default": "#FFFFFF",
+      "label": "Couleur de fond"
+    },
+    "mediaUrl1": {
+      "type": "string",
+      "required": false,
+      "default": "",
+      "label": "Vidéo ou image"
+    },
+    "mediaAlt1": {
+      "type": "string",
+      "required": false,
+      "default": "Cabinet CREC - Expertise comptable",
+      "label": "Texte alternatif média"
+    },
+    "mediaType1": {
+      "type": "string",
+      "required": false,
+      "default": "video",
+      "label": "Type de média (image ou video)"
+    }
+  },
+  "active": true
+}

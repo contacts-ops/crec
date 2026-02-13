@@ -1,11 +1,11 @@
 import React from 'react';
-import QuisommesnousTarifs from './page';
+import AboutCrec from './page';
 
 interface WrapperProps {
   [key: string]: any;
 }
 
-export default function QuisommesnousTarifsWrapper(props: WrapperProps) {
+export default function AboutCrecWrapper(props: WrapperProps) {
   // Filtrer les props pour ne pas les passer aux éléments DOM
   const {
     primaryColor,
@@ -60,5 +60,5 @@ export default function QuisommesnousTarifsWrapper(props: WrapperProps) {
     ...restProps
   };
 
-  return <QuisommesnousTarifs {...validProps} />;
+  return <AboutCrec {...validProps} />;
 }

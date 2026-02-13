@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { Blog } from '@/lib/models/Blog';
 
+// Article complet (avec content) : appelé quand on ouvre une page article après clic sur la liste.
 export async function GET(request: Request, { params }: { params: { id: string } }) {
     const { id } = params;
     await connectToDatabase();

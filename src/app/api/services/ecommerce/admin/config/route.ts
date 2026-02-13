@@ -57,6 +57,8 @@ export async function GET(request: NextRequest) {
         // Don't return actual keys for security
         testPublicKey: ecommerceConfig.testPublicKey ? "***configured***" : undefined,
         livePublicKey: ecommerceConfig.livePublicKey ? "***configured***" : undefined,
+        priceMode: ecommerceConfig.priceMode || "HT",
+        vatRate: typeof ecommerceConfig.vatRate === "number" ? ecommerceConfig.vatRate : 0.2,
       },
     })
   } catch (error: any) {
@@ -91,6 +93,8 @@ export async function POST(request: NextRequest) {
       webhookSecret, // Legacy support
       testWebhookSecret,
       liveWebhookSecret,
+      priceMode,
+      vatRate,
     } = body
 
     let siteId = extractSiteId(request)
@@ -101,13 +105,6 @@ export async function POST(request: NextRequest) {
     if (!siteId) {
       return NextResponse.json(
         { success: false, error: "siteId est requis" },
-        { status: 400 }
-      )
-    }
-
-    if (!environment || !["development", "production"].includes(environment)) {
-      return NextResponse.json(
-        { success: false, error: "Environnement invalide. Utilisez 'development' ou 'production'" },
         { status: 400 }
       )
     }
@@ -158,70 +155,84 @@ export async function POST(request: NextRequest) {
     // Get existing e-commerce config to preserve values not being updated
     const existingConfig = (site.ecommerce || {}) as any
 
+    // Price mode and VAT (optional in request; preserve existing if not sent)
+    if (priceMode !== undefined && (priceMode === "HT" || priceMode === "TTC")) {
+      existingConfig.priceMode = priceMode
+    } else if (existingConfig.priceMode === undefined) {
+      existingConfig.priceMode = "HT"
+    }
+    if (vatRate !== undefined && typeof vatRate === "number" && vatRate >= 0 && vatRate <= 1) {
+      existingConfig.vatRate = vatRate
+    } else if (existingConfig.vatRate === undefined) {
+      existingConfig.vatRate = 0.2
+    }
+
+    const isPriceOnlyUpdate = environment === undefined || environment === null
+    const resolvedEnvironment = (environment && ["development", "production"].includes(environment))
+      ? environment
+      : (existingConfig.environment || "development")
+
+    if (!isPriceOnlyUpdate && !["development", "production"].includes(resolvedEnvironment)) {
+      return NextResponse.json(
+        { success: false, error: "Environnement invalide. Utilisez 'development' ou 'production'" },
+        { status: 400 }
+      )
+    }
+
     // Prepare e-commerce config - start with existing values to preserve them
     // But exclude legacy webhookSecret - we'll migrate it to environment-specific field
     const ecommerceConfig: any = {
       ...existingConfig, // Preserve existing config
-      environment,
-      isConfigured: false,
+      environment: resolvedEnvironment,
+      isConfigured: isPriceOnlyUpdate ? existingConfig.isConfigured : false,
     }
     // Remove legacy webhookSecret from the config object - we'll migrate it below
     if (ecommerceConfig.webhookSecret) {
       delete ecommerceConfig.webhookSecret
     }
 
-    // Set keys based on environment
-    // Only update keys that are provided in the request, preserve existing ones
-    if (environment === "development") {
-      if (testPublicKey) ecommerceConfig.testPublicKey = testPublicKey
-      if (testSecretKey) ecommerceConfig.testSecretKey = testSecretKey
-      // Set test webhook secret if provided
-      if (testWebhookSecret) {
-        ecommerceConfig.testWebhookSecret = testWebhookSecret
-      } else if (webhookSecret) {
-        // Legacy support: if webhookSecret provided and environment is development, save as testWebhookSecret
-        ecommerceConfig.testWebhookSecret = webhookSecret
+    // Set keys based on environment (skip when only updating price settings)
+    if (!isPriceOnlyUpdate && resolvedEnvironment) {
+      if (resolvedEnvironment === "development") {
+        if (testPublicKey) ecommerceConfig.testPublicKey = testPublicKey
+        if (testSecretKey) ecommerceConfig.testSecretKey = testSecretKey
+        // Set test webhook secret if provided
+        if (testWebhookSecret) {
+          ecommerceConfig.testWebhookSecret = testWebhookSecret
+        } else if (webhookSecret) {
+          ecommerceConfig.testWebhookSecret = webhookSecret
+        }
+        if (!testWebhookSecret && !webhookSecret && existingConfig.testWebhookSecret) {
+          ecommerceConfig.testWebhookSecret = existingConfig.testWebhookSecret
+        }
+        if (!ecommerceConfig.testWebhookSecret && existingConfig.webhookSecret) {
+          console.log(`[ecommerce/admin/config] Migrating legacy webhookSecret to testWebhookSecret for siteId: ${siteId}`)
+          ecommerceConfig.testWebhookSecret = existingConfig.webhookSecret
+        }
+        ecommerceConfig.isConfigured = !!(
+          (ecommerceConfig.testPublicKey || existingConfig.testPublicKey) &&
+          (ecommerceConfig.testSecretKey || existingConfig.testSecretKey)
+        )
+      } else {
+        if (livePublicKey) ecommerceConfig.livePublicKey = livePublicKey
+        if (liveSecretKey) ecommerceConfig.liveSecretKey = liveSecretKey
+        if (liveWebhookSecret) {
+          ecommerceConfig.liveWebhookSecret = liveWebhookSecret
+        } else if (webhookSecret) {
+          ecommerceConfig.liveWebhookSecret = webhookSecret
+        }
+        if (!liveWebhookSecret && !webhookSecret && existingConfig.liveWebhookSecret) {
+          ecommerceConfig.liveWebhookSecret = existingConfig.liveWebhookSecret
+        }
+        if (!ecommerceConfig.liveWebhookSecret && existingConfig.webhookSecret) {
+          console.log(`[ecommerce/admin/config] Migrating legacy webhookSecret to liveWebhookSecret for siteId: ${siteId}`)
+          ecommerceConfig.liveWebhookSecret = existingConfig.webhookSecret
+        }
+        ecommerceConfig.isConfigured = !!(
+          (ecommerceConfig.livePublicKey || existingConfig.livePublicKey) &&
+          (ecommerceConfig.liveSecretKey || existingConfig.liveSecretKey)
+        )
       }
-      // Preserve existing test webhook secret if not being updated
-      if (!testWebhookSecret && !webhookSecret && existingConfig.testWebhookSecret) {
-        ecommerceConfig.testWebhookSecret = existingConfig.testWebhookSecret
-      }
-      // Migrate legacy webhookSecret to testWebhookSecret if it exists and we're in development mode
-      // This happens automatically on save - migrate legacy to environment-specific
-      if (!ecommerceConfig.testWebhookSecret && existingConfig.webhookSecret) {
-        console.log(`[ecommerce/admin/config] Migrating legacy webhookSecret to testWebhookSecret for siteId: ${siteId}`)
-        ecommerceConfig.testWebhookSecret = existingConfig.webhookSecret
-      }
-      // Check if test keys are configured (use existing if not provided)
-      ecommerceConfig.isConfigured = !!(
-        (ecommerceConfig.testPublicKey || existingConfig.testPublicKey) && 
-        (ecommerceConfig.testSecretKey || existingConfig.testSecretKey)
-      )
-    } else {
-      if (livePublicKey) ecommerceConfig.livePublicKey = livePublicKey
-      if (liveSecretKey) ecommerceConfig.liveSecretKey = liveSecretKey
-      // Set live webhook secret if provided
-      if (liveWebhookSecret) {
-        ecommerceConfig.liveWebhookSecret = liveWebhookSecret
-      } else if (webhookSecret) {
-        // Legacy support: if webhookSecret provided and environment is production, save as liveWebhookSecret
-        ecommerceConfig.liveWebhookSecret = webhookSecret
-      }
-      // Preserve existing live webhook secret if not being updated
-      if (!liveWebhookSecret && !webhookSecret && existingConfig.liveWebhookSecret) {
-        ecommerceConfig.liveWebhookSecret = existingConfig.liveWebhookSecret
-      }
-      // Migrate legacy webhookSecret to liveWebhookSecret if it exists and we're in production mode
-      // This happens automatically on save - migrate legacy to environment-specific
-      if (!ecommerceConfig.liveWebhookSecret && existingConfig.webhookSecret) {
-        console.log(`[ecommerce/admin/config] Migrating legacy webhookSecret to liveWebhookSecret for siteId: ${siteId}`)
-        ecommerceConfig.liveWebhookSecret = existingConfig.webhookSecret
-      }
-      // Check if live keys are configured (use existing if not provided)
-      ecommerceConfig.isConfigured = !!(
-        (ecommerceConfig.livePublicKey || existingConfig.livePublicKey) && 
-        (ecommerceConfig.liveSecretKey || existingConfig.liveSecretKey)
-      )
     }
 
     // Ensure webhookSecret is removed from the config object (we've already migrated it)

@@ -5,9 +5,9 @@ Ce projet a été exporté depuis Majoli Hub et est prêt pour le déploiement.
 ## 📋 Informations du site
 - **Nom**: CREC Experts Comptables
 - **Description**: Pilotez votre entreprise avec sérénité grâce à un accompagnement stratégique, humain et digital.
-- **Pages**: 11 page(s)
-- **Statut**: Développement
-- **Exporté le**: 12/02/2026
+- **Pages**: 14 page(s)
+- **Statut**: Production
+- **Exporté le**: 13/02/2026
 
 ## 🚀 Déploiement sur AWS Amplify
 

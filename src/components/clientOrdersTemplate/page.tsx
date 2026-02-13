@@ -36,6 +36,8 @@ type OrderStatus =
   | "packed"
   | "shipped"
   | "delivered"
+  | "prêt à être livré"
+  | "prêt à être retiré"
   | "cancellationrequested"
   | "cancelled"
   | "refunded";
@@ -182,6 +184,10 @@ export default function ClientOrdersTemplate({ siteId: siteIdProp }: ClientOrder
         return "Expédiée";
       case "delivered":
         return "Livrée";
+      case "prêt à être livré":
+        return "Prêt à être livré";
+      case "prêt à être retiré":
+        return "Prêt à être retiré";
       case "cancellationrequested":
         return "Annulation demandée";
       case "cancelled":
@@ -201,6 +207,9 @@ export default function ClientOrdersTemplate({ siteId: siteIdProp }: ClientOrder
       case "packed":
       case "processing":
         return "bg-blue-100 text-blue-800 border-blue-200";
+      case "prêt à être livré":
+      case "prêt à être retiré":
+        return "bg-teal-100 text-teal-800 border-teal-200";
       case "pending":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
       case "cancellationrequested":
@@ -610,5 +619,4 @@ export default function ClientOrdersTemplate({ siteId: siteIdProp }: ClientOrder
     </div>
   );
 }
-
 

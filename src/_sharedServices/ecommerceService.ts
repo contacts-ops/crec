@@ -12,7 +12,7 @@ import type {
   CheckoutItem,
   CheckoutMetadata,
 } from "@/types/ecommerce"
-import { computeShippingCost, normalizeDeliveryOptions } from "@/_sharedServices/utils/deliveryShipping"
+import { computeShippingCostFromItems, normalizeDeliveryOptions } from "@/_sharedServices/utils/deliveryShipping"
 
 // Helper function to transform MongoDB document to API response
 const transformToResponse = (doc: any) => {
@@ -141,6 +141,10 @@ class EcommerceService {
         capacity: productData.capacity || "",
         weight: productData.weight || "",
         seo: productData.seo,
+        ...(typeof (productData as any).deliveryCostOverride === "number" && (productData as any).deliveryCostOverride >= 0
+          ? { deliveryCostOverride: (productData as any).deliveryCostOverride }
+          : {}),
+        ...((productData as any).sku ? { sku: (productData as any).sku } : {}),
       }
 
       console.log("[BACKEND DEBUG] Data being sent to Product.create:", productCreateData)
@@ -167,6 +171,17 @@ class EcommerceService {
       const reloadedProduct = await Product.findById(product._id)
       console.log("[BACKEND DEBUG] Reloaded product from DB:", reloadedProduct)
       const response = transformToResponse(reloadedProduct || product)
+
+      // Sync to Shippingbo when configured for this site (e.g. blancavenue)
+      try {
+        const { isShippingboSite, syncProductToShippingbo } = await import("@/_sharedServices/shippingbo")
+        if (await isShippingboSite(siteId)) {
+          const syncResult = await syncProductToShippingbo(siteId, product._id.toString())
+          if (!syncResult.success) console.warn("[ecommerceService] Shippingbo product sync failed:", syncResult.error)
+        }
+      } catch (shippingboErr) {
+        console.warn("[ecommerceService] Shippingbo product sync error (non-blocking):", shippingboErr)
+      }
 
       return { success: true, data: response }
     } catch (error: any) {
@@ -298,10 +313,23 @@ class EcommerceService {
         const reloadedProduct = await Product.findById(productId).populate("categories")
         if (reloadedProduct) {
           console.log("[BACKEND DEBUG] Reloaded product after Stripe sync (update):", reloadedProduct.stripeProductId)
-          return { success: true, data: transformToResponse(reloadedProduct) }
+          const out = transformToResponse(reloadedProduct)
+          try {
+            const { isShippingboSite, syncProductToShippingbo } = await import("@/_sharedServices/shippingbo")
+            if (await isShippingboSite(siteId)) await syncProductToShippingbo(siteId, productId)
+          } catch (e) {
+            console.warn("[ecommerceService] Shippingbo product sync (update) error:", e)
+          }
+          return { success: true, data: out }
         }
       }
 
+      try {
+        const { isShippingboSite, syncProductToShippingbo } = await import("@/_sharedServices/shippingbo")
+        if (await isShippingboSite(siteId)) await syncProductToShippingbo(siteId, productId)
+      } catch (e) {
+        console.warn("[ecommerceService] Shippingbo product sync (update) error:", e)
+      }
       return { success: true, data: transformToResponse(product) }
     } catch (error: any) {
       console.error("[ecommerceService] Error updating product:", error)
@@ -547,8 +575,12 @@ class EcommerceService {
 
       const query: any = { siteId }
 
-      if (filters.parentId) {
+      // Subcategories: filter by parent (optional)
+      if (filters.parentId != null && filters.parentId !== "") {
         query.parent = filters.parentId
+      } else if (filters.topLevelOnly) {
+        // Only top-level categories (no parent) — for sites that don't use subcategories
+        query.$or = [{ parent: null }, { parent: { $exists: false } }]
       }
 
       const limit = filters.limit || 50
@@ -1085,7 +1117,7 @@ class EcommerceService {
         variantId: item.variantId || undefined, // Include variantId in order items
       }))
 
-      // Load site delivery options (server-side) and compute shipping cost
+      // Load site delivery options and price mode (server-side)
       const { connectToDatabase } = await import("@/lib/db")
       const { Site } = await import("@/lib/models/Site")
       await connectToDatabase()
@@ -1093,16 +1125,29 @@ class EcommerceService {
       const deliveryOptions = site?.ecommerce?.delivery
         ? normalizeDeliveryOptions(site.ecommerce.delivery as Record<string, unknown>)
         : null
-      const itemCount = cart.items.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0)
-      const shippingCost = computeShippingCost(deliveryOptions, deliveryMethod, itemCount)
+      const shippingItems = cart.items.map((item: any) => ({
+        quantity: item.quantity || 0,
+        productId: item.productId ? { deliveryCostOverride: item.productId.deliveryCostOverride } : null,
+      }))
+      const shippingCost = computeShippingCostFromItems(deliveryOptions, deliveryMethod, shippingItems)
 
-      // Calculate totals
+      const priceMode = site?.ecommerce?.priceMode === "TTC" ? "TTC" : "HT"
+      const vatRate = typeof site?.ecommerce?.vatRate === "number" ? site.ecommerce.vatRate : 0.2
+
+      // Calculate totals: TTC = no extra tax; HT = add VAT
       const subtotal = cart.total
-      const tax = (subtotal + shippingCost) * 0.2 // 20% VAT
+      const tax = priceMode === "TTC" ? 0 : (subtotal + shippingCost) * vatRate
       const total = subtotal + shippingCost + tax
+
+      // Order number for display and Shippingbo idempotency (e.g. Ilkay / blancavenue)
+      const { isShippingboSite } = await import("@/_sharedServices/shippingbo")
+      const orderNumber = (await isShippingboSite(siteId))
+        ? `ILKAY-${new Date().getFullYear()}-${Date.now().toString(36).toUpperCase().slice(-6)}`
+        : undefined
 
       const order = await Order.create({
         siteId,
+        ...(orderNumber ? { order_number: orderNumber } : {}),
         userId: userId || null,
         email: email?.toLowerCase(), // Normalize email to lowercase for consistent querying
         items: orderItems,
@@ -1658,6 +1703,21 @@ class EcommerceService {
         console.error(`[ecommerceService] Failed to update order ${orderId}:`, updateResult.error)
       }
 
+      // Push order to Shippingbo when configured for this site (e.g. blancavenue)
+      try {
+        const { isShippingboSite, pushOrderToShippingbo } = await import("@/_sharedServices/shippingbo")
+        if (await isShippingboSite(siteId)) {
+          const pushResult = await pushOrderToShippingbo(siteId, orderId)
+          if (pushResult.success && pushResult.shippingbo_order_id) {
+            console.log(`[ecommerceService] Order ${orderId} pushed to Shippingbo: ${pushResult.shippingbo_order_id}`)
+          } else if (!pushResult.success) {
+            console.warn(`[ecommerceService] Shippingbo push failed for order ${orderId}:`, pushResult.error)
+          }
+        }
+      } catch (shippingboErr) {
+        console.warn("[ecommerceService] Shippingbo push error (non-blocking):", shippingboErr)
+      }
+
       // Send order confirmation email to customer
       console.log(`[ecommerceService] Checking email for order ${orderId}:`, { 
         hasEmail: !!existingOrder.email, 
@@ -1677,11 +1737,17 @@ class EcommerceService {
           // Format order number
           const orderNumber = orderId.length >= 8 ? orderId.substring(0, 8).toUpperCase() : orderId.toUpperCase()
           
-          // Calculate totals for email
           const subtotal = existingOrder.items?.reduce((sum: number, item: any) => sum + (item.price || 0) * (item.quantity || 0), 0) || 0
           const shippingCost = existingOrder.shippingCost || 0
-          const tax = (subtotal + shippingCost) * 0.2
-          const total = subtotal + shippingCost + tax
+          const total = existingOrder.total ?? (subtotal + shippingCost)
+
+          const { Site } = await import("@/lib/models/Site")
+          const siteDoc = await Site.findOne({ siteId }).lean() as any
+          const priceMode = siteDoc?.ecommerce?.priceMode === "TTC" ? "TTC" : "HT"
+          const vatRate = typeof siteDoc?.ecommerce?.vatRate === "number" ? siteDoc.ecommerce.vatRate : 0.2
+          const tax = priceMode === "TTC" ? 0 : (subtotal + shippingCost) * vatRate
+          const priceLabel = priceMode === "TTC" ? "TTC" : "HT"
+          const showTaxLine = priceMode === "HT" && tax > 0
 
           const subject = `Confirmation de votre commande #${orderNumber}`
           
@@ -1706,13 +1772,13 @@ class EcommerceService {
                 ${existingOrder.items?.map((item: any) => `
                   <div style="padding: 10px 0; border-bottom: 1px solid #eee;">
                     <p style="margin: 0;"><strong>${item.title || "Produit"}</strong> x ${item.quantity || 1}</p>
-                    <p style="margin: 5px 0 0 0; color: #666;">${(item.price || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € HT</p>
+                    <p style="margin: 5px 0 0 0; color: #666;">${(item.price || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € ${priceLabel}</p>
                   </div>
                 `).join("") || ""}
                 <div style="padding: 10px 0; margin-top: 10px; border-top: 2px solid #333;">
-                  <p style="margin: 5px 0;"><strong>Sous-total :</strong> ${subtotal.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € HT</p>
-                  <p style="margin: 5px 0;"><strong>Frais de livraison :</strong> ${shippingCost.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € HT</p>
-                  <p style="margin: 5px 0;"><strong>TVA (20%) :</strong> ${tax.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
+                  <p style="margin: 5px 0;"><strong>Sous-total :</strong> ${subtotal.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € ${priceLabel}</p>
+                  <p style="margin: 5px 0;"><strong>Frais de livraison :</strong> ${shippingCost.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € ${priceLabel}</p>
+                  ${showTaxLine ? `<p style="margin: 5px 0;"><strong>TVA (${Math.round(vatRate * 100)}%) :</strong> ${tax.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>` : ""}
                   <p style="margin: 10px 0 0 0; font-size: 18px; font-weight: bold;"><strong>Total TTC :</strong> ${total.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
                 </div>
               </div>

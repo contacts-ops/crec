@@ -56,21 +56,25 @@ const PhoneCrec: React.FC<PhoneCrecProps> = ({
     setStatus("loading");
     setMessage("");
     try {
-      const url = siteId
-        ? `/api/sharedServices/phone?siteId=${encodeURIComponent(siteId)}`
-        : "/api/sharedServices/phone";
-      const res = await fetch(url, {
+      const urlWithQuery = siteId
+        ? `/api/sharedServices/contact-send?siteId=${encodeURIComponent(siteId)}`
+        : "/api/sharedServices/contact-send";
+      const res = await fetch(urlWithQuery, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(siteId ? { "x-site-id": siteId } : {}),
+        },
         body: JSON.stringify({
-          name: name.trim(),
-          phone: phone.trim(),
+          nom: name.trim(),
+          telephone: phone.trim(),
           siteId: siteId || undefined,
+          source: "CREC-bandeau_téléphone",
         }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.success) {
-        setMessage(data.message || "Demande envoyée.");
+        setMessage(data.message || "Demande enregistrée. Un expert vous recontactera.");
         setStatus("success");
         setName("");
         setPhone("");
@@ -150,30 +154,16 @@ const PhoneCrec: React.FC<PhoneCrecProps> = ({
                   {subtitle}
                 </p>
 
-                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-                  <div className="flex rounded-md overflow-hidden border-0 w-full sm:w-auto sm:max-w-[160px] md:max-w-[180px] lg:max-w-[200px]" style={{ backgroundColor: inputBgColor }}>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder={inputPlaceholderName}
-                      className="flex-1 min-w-0 w-full px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-md text-xs sm:text-sm border-0 bg-transparent outline-none focus:ring-2 focus:ring-offset-0 text-gray-800 placeholder-gray-500"
-                      style={{ ...textStyle }}
-                    />
-                    <button
-                      type="submit"
-                      disabled={status === "loading"}
-                      className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0 transition-opacity hover:opacity-80 disabled:opacity-50 bg-transparent"
-                      style={{ color: buttonArrowColor }}
-                      aria-label="Envoyer"
-                    >
-                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                      </svg>
-                    </button>
-                  </div>
-                  <div className="flex rounded-md overflow-hidden border-0 w-full sm:w-auto sm:max-w-[180px] md:max-w-[200px] lg:max-w-[220px]" style={{ backgroundColor: inputBgColor }}>
+                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto sm:items-stretch">
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={inputPlaceholderName}
+                    className="rounded-md px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm border-0 outline-none focus:ring-2 focus:ring-offset-0 text-gray-800 placeholder-gray-500 w-full sm:w-auto sm:max-w-[160px] md:max-w-[180px] lg:max-w-[200px]"
+                    style={{ backgroundColor: inputBgColor, ...textStyle }}
+                  />
+                  <div className="flex rounded-md overflow-hidden border-0 w-full sm:w-auto sm:max-w-[180px] md:max-w-[200px] lg:max-w-[220px] flex-1 sm:flex-initial" style={{ backgroundColor: inputBgColor }}>
                     <input
                       type="tel"
                       value={phone}
@@ -182,19 +172,19 @@ const PhoneCrec: React.FC<PhoneCrecProps> = ({
                       className="flex-1 min-w-0 w-full px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-md text-xs sm:text-sm border-0 bg-transparent outline-none focus:ring-2 focus:ring-offset-0 text-gray-800 placeholder-gray-500"
                       style={{ ...textStyle }}
                     />
-                    <button
-                      type="submit"
-                      disabled={status === "loading"}
-                      className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0 transition-opacity hover:opacity-80 disabled:opacity-50 bg-transparent"
-                      style={{ color: buttonArrowColor }}
-                      aria-label="Envoyer"
-                    >
-                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                      </svg>
-                    </button>
                   </div>
+                  <button
+                    type="submit"
+                    disabled={status === "loading"}
+                    className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 rounded-md transition-opacity hover:opacity-80 disabled:opacity-50 self-center sm:self-stretch"
+                    style={{ backgroundColor: inputBgColor, color: buttonArrowColor }}
+                    aria-label="Envoyer"
+                  >
+                    <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </button>
                 </form>
 
                 {status === "success" && message && (

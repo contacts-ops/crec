@@ -18,7 +18,7 @@ export interface IOrderItem {
   title: string
 }
 
-export type OrderStatus = "Pending" | "Processing" | "Packed" | "Shipped" | "Delivered" | "CancellationRequested" | "Cancelled" | "Refunded"
+export type OrderStatus = "Pending" | "Processing" | "Packed" | "Shipped" | "Delivered" | "Prêt à être livré" | "Prêt à être retiré" | "CancellationRequested" | "Cancelled" | "Refunded"
 export type PaymentStatus = "Pending" | "Completed" | "Failed" | "Refunded"
 export type DeliveryMethod = "standard" | "express" | "pickup"
 
@@ -135,7 +135,7 @@ const OrderSchema = new Schema<IOrder>(
     },
     status: {
       type: String,
-      enum: ["Pending", "Processing", "Packed", "Shipped", "Delivered", "CancellationRequested", "Cancelled", "Refunded"],
+      enum: ["Pending", "Processing", "Packed", "Shipped", "Delivered", "Prêt à être livré", "Prêt à être retiré", "CancellationRequested", "Cancelled", "Refunded"],
       default: "Pending",
     },
     paymentStatus: {
@@ -175,4 +175,8 @@ OrderSchema.index({ siteId: 1, createdAt: -1 })
 OrderSchema.index({ siteId: 1, userId: 1 })
 OrderSchema.index({ siteId: 1, status: 1 })
 
-export const Order: Model<IOrder> = mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema)
+// En dev, supprimer le modèle en cache pour que les changements d'enum (ex. nouveaux statuts) soient pris en compte
+if (process.env.NODE_ENV === "development" && mongoose.models.Order) {
+  delete mongoose.models.Order
+}
+export const Order: Model<IOrder> = mongoose.models.Order ?? mongoose.model<IOrder>("Order", OrderSchema)

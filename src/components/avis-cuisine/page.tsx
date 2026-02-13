@@ -25,12 +25,16 @@ interface AvisCuisineProps {
   cardTypeAColor: string;
   cardTypeBColor: string;
   buttonBackgroundColor: string;
+  buttonTextColor?: string;
   textColor: string;
   textOnDarkColor: string;
   starColorOnLight: string;
   starColorOnDark: string;
+  titleColor?: string;
   fontFamily: string;
   secondaryFontFamily: string;
+  titleFontFamily?: string;
+  titleFontFamilySecond?: string;
   titleText: string;
   googleBadgeText: string;
   reviewsCountText: string;
@@ -46,6 +50,7 @@ interface AvisCuisineProps {
   reviewsLimit?: number;
   ratingValue?: number;
   ratingCount?: number;
+  cardRounded?: string;
 }
 
 const clampRating = (value?: number) => {
@@ -81,12 +86,16 @@ const AvisCuisine: React.FC<AvisCuisineProps> = ({
   cardTypeAColor = "#F3F3F3",
   cardTypeBColor = "#122D42",
   buttonBackgroundColor = "#F4F4F4",
+  buttonTextColor = "#1A1A1A",
   textColor = "#1A1A1A",
   textOnDarkColor = "#FFFFFF",
   starColorOnLight = "#000000",
   starColorOnDark = "#FFFFFF",
+  titleColor,
   fontFamily = "Inter",
   secondaryFontFamily = "Bodoni",
+  titleFontFamily = "Outfit",
+  titleFontFamilySecond = "Outfit",
   titleText = "Nos Avis Client",
   googleBadgeText = "Noté 5/5 sur",
   reviewsCountText = "Basé sur 35 avis",
@@ -102,6 +111,7 @@ const AvisCuisine: React.FC<AvisCuisineProps> = ({
   reviewsLimit = 20,
   ratingValue = 5,
   ratingCount = 35,
+  cardRounded = "8px",
 }) => {
   const { transformLink } = useSiteLink();
   const siteId = useSiteId();
@@ -330,17 +340,30 @@ const AvisCuisine: React.FC<AvisCuisineProps> = ({
     <>
       <GoogleFontLoader fontName={fontFamily || ""} />
       <GoogleFontLoader fontName={secondaryFontFamily || ""} />
-      
+      <GoogleFontLoader fontName={titleFontFamily || ""} />
+      <GoogleFontLoader fontName={titleFontFamilySecond || ""} />
+
       {/* Éléments cachés pour exposer les couleurs et médias */}
       <div style={{ display: "none" }}>
         <div data-editable="true" data-id="-backgroundColor" data-label="Couleur de fond" data-type="color" style={{ backgroundColor }} />
         <div data-editable="true" data-id="-cardTypeAColor" data-label="Couleur carte type A" data-type="color" style={{ backgroundColor: cardTypeAColor }} />
         <div data-editable="true" data-id="-cardTypeBColor" data-label="Couleur carte type B" data-type="color" style={{ backgroundColor: cardTypeBColor }} />
-        <div data-editable="true" data-id="-buttonBackgroundColor" data-label="Couleur fond boutons" data-type="color" style={{ backgroundColor: buttonBackgroundColor }} />
+        <div data-editable="true" data-id="-buttonBackgroundColor" data-label="Couleur fond bouton" data-type="color" style={{ backgroundColor: buttonBackgroundColor }} />
+        <div data-editable="true" data-id="-buttonTextColor" data-label="Couleur texte bouton" data-type="color" style={{ color: buttonTextColor }} />
         <div data-editable="true" data-id="-textColor" data-label="Couleur texte clair" data-type="color" style={{ color: textColor }} />
+        <div data-editable="true" data-id="-titleColor" data-label="Couleur du titre" data-type="color" style={{ color: titleColor ?? textColor }} />
         <div data-editable="true" data-id="-textOnDarkColor" data-label="Couleur texte sur fond sombre" data-type="color" style={{ color: textOnDarkColor }} />
         <div data-editable="true" data-id="-starColorOnLight" data-label="Couleur étoiles sur fond clair" data-type="color" style={{ color: starColorOnLight }} />
         <div data-editable="true" data-id="-starColorOnDark" data-label="Couleur étoiles sur fond sombre" data-type="color" style={{ color: starColorOnDark }} />
+        <div style={{ display: "none" }} data-editable="true" data-id="-cardRounded" data-label="Border radius des cartes" data-type="string">
+          {cardRounded}
+        </div>
+        <div style={{ display: "none" }} data-editable="true" data-type="font" data-id="-titleFontFamily" data-label="Police du titre (1ère partie)">
+          {titleFontFamily ?? fontFamily}
+        </div>
+        <div style={{ display: "none" }} data-editable="true" data-type="font" data-id="-titleFontFamilySecond" data-label="Police du titre (2e partie)">
+          {titleFontFamilySecond ?? secondaryFontFamily}
+        </div>
         {mediaUrl1 && (
           <div data-editable="true" data-id="-mediaUrl1" data-label="Logo Google" data-type="media">
             {mediaType1 === "image" ? (
@@ -383,18 +406,26 @@ const AvisCuisine: React.FC<AvisCuisineProps> = ({
               data-id="-titleText"
               data-label="Titre principal"
               data-type="text"
-              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-5 leading-tight"
+              className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:mb-5 leading-tight"
               style={{
                 ...titleStyle,
-                color: textColor,
+                color: titleColor ?? textColor,
               }}
             >
-              <span style={{ fontFamily: `'${fontFamily}', sans-serif`, fontWeight: "bold" }}>
-                {titleText.split(" ")[0]}{" "}
-              </span>
-              <span style={{ fontFamily: `'${secondaryFontFamily}', serif`, fontStyle: "italic" }}>
-                {titleText.split(" ").slice(1).join(" ")}
-              </span>
+              {(titleText || "").split(/\s+/).map((word, i) => (
+                <React.Fragment key={i}>
+                  {i > 0 ? " " : null}
+                  <span
+                    style={{
+                      fontFamily: "'Outfit', sans-serif",
+                      fontWeight: "bold",
+                      fontStyle: "normal",
+                    }}
+                  >
+                    {word}
+                  </span>
+                </React.Fragment>
+              ))}
             </h2>
 
             <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
@@ -503,8 +534,9 @@ const AvisCuisine: React.FC<AvisCuisineProps> = ({
                 return (
                   <div
                     key={`${review.id}-${index}`}
-                    className="w-[280px] md:w-[300px] lg:w-[320px] h-[240px] md:h-[260px] lg:h-[280px] rounded p-4 md:p-5 lg:p-6 flex flex-col box-border"
+                    className="w-[280px] md:w-[300px] lg:w-[320px] h-[240px] md:h-[260px] lg:h-[280px] p-4 md:p-5 lg:p-6 flex flex-col box-border"
                     style={{
+                      borderRadius: cardRounded,
                       backgroundColor: cardBg,
                       boxShadow: isDark ? "0 4px 12px rgba(0,0,0,0.15)" : "0 4px 12px rgba(0,0,0,0.1)",
                       transform: isBottom ? (isMobile ? "translateY(150px)" : isTablet ? "translateY(180px)" : "translateY(210px)") : (isMobile ? "translateY(-5px)" : "translateY(-10px)"),
@@ -606,10 +638,11 @@ const AvisCuisine: React.FC<AvisCuisineProps> = ({
             <div className="flex justify-center absolute bottom-0 md:bottom-6 w-full">
               <Link
                 href={transformLink(buttonHref)}
-                className="inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-md"
+                className="inline-flex items-center justify-center px-6 py-3 md:px-8 md:py-4 font-medium transition-all duration-300 hover:scale-105 shadow-md"
                 style={{
+                  borderRadius: cardRounded,
                   backgroundColor: buttonBackgroundColor,
-                  color: textColor,
+                  color: buttonTextColor,
                   fontFamily: fontFamily ? `'${fontFamily}', sans-serif` : undefined,
                 }}
                 data-editable="true"

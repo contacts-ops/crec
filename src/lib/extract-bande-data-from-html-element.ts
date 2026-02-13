@@ -53,7 +53,9 @@ export const extractBandeDataFromHtmlElement = (element: HTMLElement, externalVa
                 }
             }
             return true;
-        });
+        })
+        // Dédupliquer par id pour éviter les clés React dupliquées (ex: deux éléments avec data-id="-sectionTitle")
+        .filter((field, index, arr) => arr.findIndex((f) => f.id === field.id) === index);
 
     // Ajouter automatiquement les champs mediaUrl0, mediaAlt0, mediaType0 pour le background si ils n'existent pas déjà
     const hasMediaUrl0 = editableFields.some(f => f.id.toLowerCase() === "-mediaurl0" || f.id.toLowerCase() === "mediaurl0");

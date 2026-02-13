@@ -26,7 +26,7 @@ export function extractSiteId(request: NextRequest): string | null {
     // Continue to next method
   }
 
-  // 3. From headers (currently used with newsletter service)
+  // 3. From headers (currently used)
   const siteIdFromHeader = request.headers.get("x-site-id")
   if (siteIdFromHeader) return siteIdFromHeader
 

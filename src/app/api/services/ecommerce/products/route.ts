@@ -5,15 +5,15 @@ import { extractSiteId } from "@/_sharedServices/utils/siteExtractor"
 // GET /api/services/ecommerce/products - List products (public)
 export async function GET(request: NextRequest) {
   try {
-    let siteId = extractSiteId(request)
+    let siteId = extractSiteId(request) 
 
-    if (!siteId) {
+    if (!siteId)  {
       const { searchParams } = new URL(request.url)
       siteId = searchParams.get("siteId") || null
     }
 
     if (!siteId) {
-      return NextResponse.json({ error: "siteId is required" }, { status: 400 })
+      return NextResponse.json({ error: "siteId est requis" }, { status: 400 })
     }
 
     const { searchParams } = new URL(request.url)

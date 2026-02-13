@@ -1,0 +1,122 @@
+{
+  "id": "whychoseus-crec",
+  "name": "Why Choose Us CREC",
+  "type": "section",
+  "version": "1.0.0",
+  "description": "Section « Pourquoi choisir CREC ? » avec titre principal et trois blocs (Liberté Totale, Proximité Digitale, Réactivité) avec icônes circulaires.",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {},
+  "required": { "fontFamily": false },
+  "props": {
+    "fontFamily": {
+      "type": "string",
+      "required": false,
+      "default": "Inter",
+      "label": "Police principale"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "required": false,
+      "default": "#FFFFFF",
+      "label": "Couleur de fond"
+    },
+    "titleColor": {
+      "type": "string",
+      "required": false,
+      "default": "#1A202C",
+      "label": "Couleur du titre principal"
+    },
+    "titleText": {
+      "type": "string",
+      "required": false,
+      "default": "Pourquoi choisir CREC ?",
+      "label": "Titre principal"
+    },
+    "headingColor": {
+      "type": "string",
+      "required": false,
+      "default": "#1A202C",
+      "label": "Couleur des sous-titres"
+    },
+    "textColor": {
+      "type": "string",
+      "required": false,
+      "default": "#4A5568",
+      "label": "Couleur du texte"
+    },
+    "feature1Title": {
+      "type": "string",
+      "required": false,
+      "default": "Liberté Totale",
+      "label": "Titre bloc 1"
+    },
+    "feature1Description": {
+      "type": "string",
+      "required": false,
+      "default": "\"Nous nous occupons de vos papiers, vous vous concentrez sur votre business.\" C'est notre promesse quotidienne.",
+      "label": "Description bloc 1"
+    },
+    "feature1IconBg": {
+      "type": "string",
+      "required": false,
+      "default": "#E0F2FE",
+      "label": "Couleur fond rond icône 1"
+    },
+    "feature1IconColor": {
+      "type": "string",
+      "required": false,
+      "default": "#2B6CB0",
+      "label": "Couleur icône 1"
+    },
+    "feature2Title": {
+      "type": "string",
+      "required": false,
+      "default": "Proximité Digitale",
+      "label": "Titre bloc 2"
+    },
+    "feature2Description": {
+      "type": "string",
+      "required": false,
+      "default": "Grâce à nos outils collaboratifs, vous suivez votre activité en temps réel. Slim et son équipe restent disponibles pour des conseils personnalisés, en physique ou en visio.",
+      "label": "Description bloc 2"
+    },
+    "feature2IconBg": {
+      "type": "string",
+      "required": false,
+      "default": "#D4F7DD",
+      "label": "Couleur fond rond icône 2"
+    },
+    "feature2IconColor": {
+      "type": "string",
+      "required": false,
+      "default": "#38A169",
+      "label": "Couleur icône 2"
+    },
+    "feature3Title": {
+      "type": "string",
+      "required": false,
+      "default": "Réactivité",
+      "label": "Titre bloc 3"
+    },
+    "feature3Description": {
+      "type": "string",
+      "required": false,
+      "default": "Dans le monde des affaires, chaque minute compte. Le cabinet CREC s'engage à répondre à vos interrogations avec agilité et précision.",
+      "label": "Description bloc 3"
+    },
+    "feature3IconBg": {
+      "type": "string",
+      "required": false,
+      "default": "#EADBF9",
+      "label": "Couleur fond rond icône 3"
+    },
+    "feature3IconColor": {
+      "type": "string",
+      "required": false,
+      "default": "#805AD5",
+      "label": "Couleur icône 3"
+    }
+  },
+  "active": true
+}

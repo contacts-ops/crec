@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import { Blog } from '@/lib/models/Blog';
 
+// Liste d'articles (ex: "Articles you might like") : 12 par page, SANS content.
+// Le content est chargé uniquement sur la page article via GET /api/blog/[id].
 export async function GET(request: Request) {
     await connectToDatabase();
     try {
@@ -55,6 +57,7 @@ export async function GET(request: Request) {
 
             const [blogs, total] = await Promise.all([
                 Blog.find(query)
+                    .select('-content')
                     .sort(sortOptions)
                     .skip(skip)
                     .limit(limit)
@@ -74,8 +77,9 @@ export async function GET(request: Request) {
             }, { status: 200 });
         }
 
-        // Rétrocompatibilité: renvoyer tout si pas de pagination demandée
+        // Rétrocompatibilité: renvoyer tout si pas de pagination demandée (sans content)
         const blogs = await Blog.find(query)
+            .select('-content')
             .sort(sortOptions)
             .lean();
         return NextResponse.json(blogs, { status: 200 });

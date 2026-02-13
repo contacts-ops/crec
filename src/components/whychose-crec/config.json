@@ -1,0 +1,112 @@
+{
+  "id": "whychose-crec",
+  "name": "Why Choose CREC",
+  "type": "section",
+  "version": "1.0.0",
+  "description": "Section CTA avec fond bleu, titre, sous-titre et deux boutons (Prêt à passer à l'étape supérieure ?).",
+  "author": "MajoliHub",
+  "thumbnail": "/placeholder.svg",
+  "dependencies": {},
+  "required": {
+    "fontFamily": false
+  },
+  "props": {
+    "fontFamily": {
+      "type": "string",
+      "required": false,
+      "default": "Inter",
+      "label": "Police principale"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "required": false,
+      "default": "#1A51FF",
+      "label": "Couleur de fond"
+    },
+    "titleColor": {
+      "type": "string",
+      "required": false,
+      "default": "#FFFFFF",
+      "label": "Couleur du titre"
+    },
+    "titleText": {
+      "type": "string",
+      "required": false,
+      "default": "Prêt à passer à l'étape supérieure ?",
+      "label": "Titre"
+    },
+    "subheadingColor": {
+      "type": "string",
+      "required": false,
+      "default": "#FFFFFF",
+      "label": "Couleur du sous-titre"
+    },
+    "subheadingText": {
+      "type": "string",
+      "required": false,
+      "default": "Ne laissez plus l'administratif freiner vos projets.",
+      "label": "Sous-titre"
+    },
+    "button1Text": {
+      "type": "string",
+      "required": false,
+      "default": "Prendre rendez-vous avec Slim Ben Mansour",
+      "label": "Texte bouton 1"
+    },
+    "button1Url": {
+      "type": "string",
+      "required": false,
+      "default": "#",
+      "label": "Lien bouton 1"
+    },
+    "button1BgColor": {
+      "type": "string",
+      "required": false,
+      "default": "#FFFFFF",
+      "label": "Fond bouton 1"
+    },
+    "button1BorderColor": {
+      "type": "string",
+      "required": false,
+      "default": "#1A51FF",
+      "label": "Bordure bouton 1"
+    },
+    "button1TextColor": {
+      "type": "string",
+      "required": false,
+      "default": "#1A51FF",
+      "label": "Texte bouton 1"
+    },
+    "button2Text": {
+      "type": "string",
+      "required": false,
+      "default": "Demander un devis gratuit",
+      "label": "Texte bouton 2"
+    },
+    "button2Url": {
+      "type": "string",
+      "required": false,
+      "default": "#",
+      "label": "Lien bouton 2"
+    },
+    "button2BgColor": {
+      "type": "string",
+      "required": false,
+      "default": "#1A51FF",
+      "label": "Fond bouton 2"
+    },
+    "button2BorderColor": {
+      "type": "string",
+      "required": false,
+      "default": "#FFFFFF",
+      "label": "Bordure bouton 2"
+    },
+    "button2TextColor": {
+      "type": "string",
+      "required": false,
+      "default": "#FFFFFF",
+      "label": "Texte bouton 2"
+    }
+  },
+  "active": true
+}

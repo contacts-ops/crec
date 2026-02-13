@@ -25,6 +25,10 @@ interface AdminContactTemplateProps {
   };
 }
 
+// Email placeholder pour les prises de contact "téléphone seul" (bande numéro)
+const PHONE_ONLY_EMAIL = '__phone_only@contact.local';
+const isPhoneOnlyContact = (email: string) =>
+  !!email && (email === PHONE_ONLY_EMAIL || email.includes('phone_only@contact.local'));
 interface Contact {
   id: string;
   name: string;
@@ -699,7 +703,11 @@ export default function AdminContactTemplate({
                     <div className="mb-2">
                       <h4 className="font-medium text-gray-900 text-lg mb-1">{contact.subject}</h4>
                       <p className="text-sm text-gray-500 mb-2">
-                        De <span className="font-medium">{contact.name}</span> ({contact.email})
+                        De <span className="font-medium">{contact.name}</span>
+                        {isPhoneOnlyContact(contact.email) && contact.phone
+                          ? <> — <span className="font-medium">Tél : {contact.phone}</span></>
+                          : <> ({contact.email})</>
+                        }
                       </p>
                       <p className="text-sm text-gray-500">
                         <Calendar className="inline w-3 h-3 mr-1" />
@@ -725,6 +733,7 @@ export default function AdminContactTemplate({
                           <Eye className="w-4 h-4" />
                           <span className="text-sm font-medium">Voir</span>
                         </button>
+                        {!isPhoneOnlyContact(contact.email) && (
                         <button 
                           onClick={() => handleReply(contact)}
                           className="flex items-center gap-2 px-3 py-2 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg transition-all duration-200 hover:shadow-sm border border-green-200 hover:border-green-300"
@@ -733,6 +742,7 @@ export default function AdminContactTemplate({
                           <Reply className="w-4 h-4" />
                           <span className="text-sm font-medium">Répondre</span>
                         </button>
+                        )}
                         {/* Bouton Archiver retiré */}
                         {/* Supprimer / Restaurer */}
                         {(contact.isDeleted || deletedCache[contact.id]) ? (
@@ -960,9 +970,11 @@ export default function AdminContactTemplate({
                   <label className="block text-sm font-medium text-gray-700 mb-1">De</label>
                   <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
                     <p className="text-sm text-gray-900 font-medium">{selectedContact.name}</p>
-                    <p className="text-sm text-gray-600">{selectedContact.email}</p>
+                    {!isPhoneOnlyContact(selectedContact.email) && (
+                      <p className="text-sm text-gray-600">{selectedContact.email}</p>
+                    )}
                     {selectedContact.phone && (
-                      <p className="text-sm text-gray-600">Tél : {selectedContact.phone}</p>
+                      <p className="text-sm text-gray-600 font-medium">Tél : {selectedContact.phone}</p>
                     )}
                     {selectedContact.company && (
                       <p className="text-sm text-gray-600">Entreprise : {selectedContact.company}</p>
@@ -980,6 +992,9 @@ export default function AdminContactTemplate({
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
                   <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    {isPhoneOnlyContact(selectedContact.email) && selectedContact.phone && (
+                      <p className="text-sm text-gray-900 font-medium mb-2">Numéro à rappeler : {selectedContact.phone}</p>
+                    )}
                     <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedContact.message}</p>
                   </div>
                 </div>
@@ -1022,6 +1037,7 @@ export default function AdminContactTemplate({
               </div>
               
               <div className="flex gap-3 mt-6">
+                {!isPhoneOnlyContact(selectedContact.email) && (
                 <button
                   onClick={() => handleReply(selectedContact)}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
@@ -1029,6 +1045,7 @@ export default function AdminContactTemplate({
                   <Reply className="w-4 h-4 inline mr-2" />
                   Répondre
                 </button>
+                )}
                 {/* Bouton Archiver retiré */}
               </div>
             </div>

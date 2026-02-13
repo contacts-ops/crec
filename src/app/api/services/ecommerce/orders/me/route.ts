@@ -24,11 +24,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Extract siteId from header or query param
-    let siteId = extractSiteId(request)
-    const { searchParams } = new URL(request.url)
-    if (!siteId && searchParams.get("siteId")) {
-      siteId = searchParams.get("siteId")
-    }
+    let siteId = request.headers.get("x-site-id") || extractSiteId(request)
+    if (!siteId) return NextResponse.json({ error: "siteId est requis" }, { status: 400 })
 
     const { connectToDatabase } = await import("@/lib/db")
     await connectToDatabase()

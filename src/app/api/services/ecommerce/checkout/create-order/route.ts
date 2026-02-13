@@ -3,9 +3,9 @@ import { connectToDatabase } from "@/lib/db"
 import { Cart } from "@/lib/models/cart"
 import { Site } from "@/lib/models/Site"
 import { sharedServices } from "@/_sharedServices"
+import { computeShippingCostFromItems, normalizeDeliveryOptions } from "@/_sharedServices/utils/deliveryShipping"
 import { extractSiteId } from "@/_sharedServices/utils/siteExtractor"
 import { verifyUserAuthentication } from "@/_sharedServices/utils/newsletterAuth"
-import { computeShippingCost, normalizeDeliveryOptions } from "@/_sharedServices/utils/deliveryShipping"
 
 // POST /api/services/ecommerce/checkout/create-order - Create order from cart
 export async function POST(request: NextRequest) {
@@ -18,14 +18,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { shippingAddress, billingAddress, deliveryMethod, email, notes } = body
 
-    let siteId = extractSiteId(request)
-    if (!siteId && body.siteId) {
-      siteId = body.siteId
-    }
-
-    if (!siteId) {
-      return NextResponse.json({ success: false, error: "siteId is required" }, { status: 400 })
-    }
+    let siteId = request.headers.get("x-site-id") || extractSiteId(request)
+    if (!siteId) return NextResponse.json({ success: false, error: "siteId est requis" }, { status: 400 })
 
     // Get email from auth or body
     const userEmail = authResult.user?.email || email
@@ -123,17 +117,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Compute shipping cost from site delivery options (server-side, tamper-proof)
-    const site = await Site.findOne({ siteId }).lean()
+    // Compute shipping cost and price mode from site (server-side, tamper-proof)
+    const site = await Site.findOne({ siteId }).lean() as any
     const deliveryOptions = site?.ecommerce?.delivery
-      ? normalizeDeliveryOptions((site as any).ecommerce.delivery)
+      ? normalizeDeliveryOptions(site.ecommerce.delivery)
       : null
-    const itemCount = cart.items.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0)
-    const shippingCost = computeShippingCost(deliveryOptions, deliveryMethod, itemCount)
+    const shippingItems = cart.items.map((item: any) => ({
+      quantity: item.quantity || 0,
+      productId: item.productId ? { deliveryCostOverride: item.productId.deliveryCostOverride } : null,
+    }))
+    const shippingCost = computeShippingCostFromItems(deliveryOptions, deliveryMethod, shippingItems)
 
-    // Calculate totals for Stripe
+    const priceMode = site?.ecommerce?.priceMode === "TTC" ? "TTC" : "HT"
+    const vatRate = typeof site?.ecommerce?.vatRate === "number" ? site.ecommerce.vatRate : 0.2
+
+    // Totals for Stripe: TTC = no tax line; HT = add VAT
     const subtotal = cart.total
-    const tax = (subtotal + shippingCost) * 0.2 // 20% VAT
+    const tax = priceMode === "TTC" ? 0 : (subtotal + shippingCost) * vatRate
     const total = subtotal + shippingCost + tax
 
     // Create Stripe checkout session for payment

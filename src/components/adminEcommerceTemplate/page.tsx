@@ -37,7 +37,7 @@ export default function AdminEcommerceTemplate({ editableElements = {} }: Omit<A
   const fetchStats = useCallback(async () => {
     try {
       const productsRes = await fetch(`/api/services/ecommerce/products/admin?siteId=${siteId}`)
-      const categoriesRes = await fetch(`/api/services/ecommerce/categories/admin?siteId=${siteId}`)
+      const categoriesRes = await fetch(`/api/services/ecommerce/categories/admin?siteId=${siteId}&topLevelOnly=true`)
 
       if (productsRes.ok) {
         const productsData = await productsRes.json()

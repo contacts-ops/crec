@@ -3,11 +3,15 @@ import { connectToDatabase } from "@/lib/db"
 import { Cart } from "@/lib/models/cart"
 import { Product } from "@/lib/models/product"
 import { getGuestOrUserAuth } from "@/_sharedServices/utils/guestAuth"
-import { FRENCH_ERROR_MESSAGES } from "@/_sharedServices/utils/errorHandler"
+import { FRENCH_ERROR_MESSAGES } from "@/_sharedServices/utils/errorHandler"  
+import { extractSiteId } from "@/_sharedServices/utils/siteExtractor"
 
 // GET user's cart (supports both authenticated users and guests)
 export async function GET(request: NextRequest) {
   try {
+    let siteId = request.headers.get("x-site-id") || extractSiteId(request)
+    if (!siteId) return NextResponse.json({ success: false, error: "siteId est requis" }, { status: 400 })
+
     // Use optional auth - allows both guests and authenticated users
     const auth = await getGuestOrUserAuth(request)
 
@@ -63,6 +67,9 @@ export async function GET(request: NextRequest) {
 // POST - Add item to cart (supports both authenticated users and guests)
 export async function POST(request: NextRequest) {
   try {
+    let siteId = request.headers.get("x-site-id") || extractSiteId(request)
+    if (!siteId) return NextResponse.json({ success: false, error: "siteId est requis" }, { status: 400 })
+
     // Use optional auth - allows both guests and authenticated users
     const auth = await getGuestOrUserAuth(request)
 
@@ -173,6 +180,9 @@ export async function POST(request: NextRequest) {
 // DELETE - Clear cart (supports both authenticated users and guests)
 export async function DELETE(request: NextRequest) {
   try {
+    let siteId = request.headers.get("x-site-id") || extractSiteId(request)
+    if (!siteId) return NextResponse.json({ success: false, error: "siteId est requis" }, { status: 400 })
+
     // Use optional auth - allows both guests and authenticated users
     const auth = await getGuestOrUserAuth(request)
 

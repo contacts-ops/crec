@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://crec-experts-comptables.majoli.io</loc>
-    <lastmod>2026-02-12T14:19:41.097Z</lastmod>
+    <lastmod>2026-02-12T15:08:33.055Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -14,7 +14,7 @@
   </url>
   <url>
     <loc>https://crec-experts-comptables.majoli.io/qui-sommes-nous</loc>
-    <lastmod>2026-02-12T14:19:41.048Z</lastmod>
+    <lastmod>2026-02-12T16:15:38.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -45,6 +45,24 @@
   <url>
     <loc>https://crec-experts-comptables.majoli.io/article</loc>
     <lastmod>2026-02-12T14:19:41.946Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://crec-experts-comptables.majoli.io/politique-de-confidentialite</loc>
+    <lastmod>2026-02-12T14:40:17.356Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://crec-experts-comptables.majoli.io/mentions-legales</loc>
+    <lastmod>2026-02-12T14:42:52.960Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://crec-experts-comptables.majoli.io/termes-et-conditions</loc>
+    <lastmod>2026-02-12T14:43:39.989Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

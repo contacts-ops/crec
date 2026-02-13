@@ -24,13 +24,8 @@ export async function POST(
       )
     }
 
-    const siteId = extractSiteId(request)
-    if (!siteId) {
-      return NextResponse.json(
-        { success: false, error: "Site ID requis" },
-        { status: 400 }
-      )
-    }
+    const siteId = request.headers.get("x-site-id") || extractSiteId(request)
+    if (!siteId) return NextResponse.json({ success: false, error: "siteId est requis" }, { status: 400 })
 
     await connectToDatabase()
 

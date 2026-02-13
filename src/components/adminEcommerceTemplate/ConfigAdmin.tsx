@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { AlertCircle, CheckCircle2, CreditCard, Loader2, Settings, Truck } from "lucide-react"
+import { AlertCircle, CheckCircle2, CreditCard, Loader2, Settings, Truck, Euro } from "lucide-react"
 import { useSiteId } from "@/hooks/use-site-id"
 
 interface EcommerceConfig {
@@ -14,6 +14,8 @@ interface EcommerceConfig {
   hasLiveKeys: boolean
   testPublicKey?: string
   livePublicKey?: string
+  priceMode?: "HT" | "TTC"
+  vatRate?: number
 }
 
 // Form state: numeric fields as string so inputs can be empty and typing doesn't force 0
@@ -50,8 +52,13 @@ export default function ConfigAdmin() {
   const [liveSecretKey, setLiveSecretKey] = useState("")
   const [webhookSecret, setWebhookSecret] = useState("")
 
-  // Config sub-tab: "stripe" | "delivery"
-  const [configSubTab, setConfigSubTab] = useState<"stripe" | "delivery">("stripe")
+  // Config sub-tab: "stripe" | "delivery" | "prices"
+  const [configSubTab, setConfigSubTab] = useState<"stripe" | "delivery" | "prices">("stripe")
+  const [priceMode, setPriceMode] = useState<"HT" | "TTC">("HT")
+  const [vatRate, setVatRate] = useState<string>("20")
+  const [priceSaving, setPriceSaving] = useState(false)
+  const [priceSuccess, setPriceSuccess] = useState("")
+  const [priceError, setPriceError] = useState("")
 
   // Delivery options state
   const [deliveryLoading, setDeliveryLoading] = useState(true)
@@ -97,6 +104,8 @@ export default function ConfigAdmin() {
         if (data.success && data.config) {
           setConfig(data.config)
           setEnvironment(data.config.environment || "development")
+          setPriceMode(data.config.priceMode === "TTC" ? "TTC" : "HT")
+          setVatRate(String(((data.config.vatRate ?? 0.2) * 100).toFixed(0)))
         }
       } catch (err: any) {
         console.error("Error loading config:", err)
@@ -228,6 +237,50 @@ export default function ConfigAdmin() {
     }
   }
 
+  const handleSavePrices = async () => {
+    if (!siteId) {
+      setPriceError("SiteId manquant")
+      return
+    }
+    const vatNum = parseFloat(vatRate)
+    if (Number.isNaN(vatNum) || vatNum < 0 || vatNum > 100) {
+      setPriceError("Taux de TVA : entrez un nombre entre 0 et 100.")
+      return
+    }
+    try {
+      setPriceSaving(true)
+      setPriceError("")
+      setPriceSuccess("")
+      const response = await fetch("/api/services/ecommerce/admin/config", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-site-id": siteId,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          siteId,
+          priceMode,
+          vatRate: vatNum / 100,
+        }),
+      })
+      const data = await response.json()
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Erreur lors de la sauvegarde")
+      }
+      setPriceSuccess("Options de prix enregistrées.")
+      const reloadResponse = await fetch(`/api/services/ecommerce/admin/config?siteId=${siteId}`, { credentials: "include" })
+      if (reloadResponse.ok) {
+        const reloadData = await reloadResponse.json()
+        if (reloadData.success && reloadData.config) setConfig(reloadData.config)
+      }
+    } catch (err: any) {
+      setPriceError(err.message || "Erreur lors de la sauvegarde des options de prix")
+    } finally {
+      setPriceSaving(false)
+    }
+  }
+
   const handleSaveDelivery = async () => {
     if (!siteId) {
       setDeliveryError("SiteId manquant")
@@ -339,6 +392,18 @@ export default function ConfigAdmin() {
         >
           <Truck className="w-4 h-4" />
           Livraison
+        </button>
+        <button
+          type="button"
+          onClick={() => setConfigSubTab("prices")}
+          className={`px-4 py-2 font-medium border-b-2 transition-colors flex items-center gap-2 ${
+            configSubTab === "prices"
+              ? "border-black text-black"
+              : "border-transparent text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          <Euro className="w-4 h-4" />
+          Prix
         </button>
       </div>
 
@@ -571,7 +636,7 @@ export default function ConfigAdmin() {
           <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label className="text-base font-medium">Livraison standard – base (€ HT)</Label>
+                <Label className="text-base font-medium">Livraison standard – base (€ {priceMode})</Label>
                 <Input
                   type="text"
                   inputMode="decimal"
@@ -582,7 +647,7 @@ export default function ConfigAdmin() {
                 />
               </div>
               <div>
-                <Label className="text-base font-medium">Livraison standard – par article (€ HT)</Label>
+                <Label className="text-base font-medium">Livraison standard – par article (€ {priceMode})</Label>
                 <Input
                   type="text"
                   inputMode="decimal"
@@ -593,7 +658,7 @@ export default function ConfigAdmin() {
                 />
               </div>
               <div>
-                <Label className="text-base font-medium">Livraison express – base (€ HT)</Label>
+                <Label className="text-base font-medium">Livraison express – base (€ {priceMode})</Label>
                 <Input
                   type="text"
                   inputMode="decimal"
@@ -604,7 +669,7 @@ export default function ConfigAdmin() {
                 />
               </div>
               <div>
-                <Label className="text-base font-medium">Livraison express – par article (€ HT)</Label>
+                <Label className="text-base font-medium">Livraison express – par article (€ {priceMode})</Label>
                 <Input
                   type="text"
                   inputMode="decimal"
@@ -615,7 +680,7 @@ export default function ConfigAdmin() {
                 />
               </div>
               <div>
-                <Label className="text-base font-medium">Retrait – coût (€ HT)</Label>
+                <Label className="text-base font-medium">Retrait – coût (€ {priceMode})</Label>
                 <Input
                   type="text"
                   inputMode="decimal"
@@ -733,6 +798,92 @@ export default function ConfigAdmin() {
           </div>
         )}
       </div>
+      )}
+
+      {/* Prix (HT / TTC) tab content */}
+      {configSubTab === "prices" && (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+            <Euro className="w-5 h-5" />
+            Mode des prix
+          </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Choisissez si les prix des produits et de la livraison sont saisis en <strong>HT</strong> (hors taxes, la TVA s&apos;ajoute au checkout) ou en <strong>TTC</strong> (toutes taxes comprises, le client paie le prix affiché).
+          </p>
+
+          {priceError && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 mb-4 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <span>{priceError}</span>
+            </div>
+          )}
+          {priceSuccess && (
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 mb-4 flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 shrink-0" />
+              <span>{priceSuccess}</span>
+            </div>
+          )}
+
+          <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
+            <div>
+              <Label className="text-base font-medium">Prix affichés en</Label>
+              <div className="flex gap-6 mt-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="priceMode"
+                    value="HT"
+                    checked={priceMode === "HT"}
+                    onChange={() => setPriceMode("HT")}
+                    className="w-4 h-4"
+                  />
+                  <span>HT (hors taxes) — la TVA s&apos;ajoute au checkout</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="priceMode"
+                    value="TTC"
+                    checked={priceMode === "TTC"}
+                    onChange={() => setPriceMode("TTC")}
+                    className="w-4 h-4"
+                  />
+                  <span>TTC (toutes taxes comprises) — le client paie le prix affiché</span>
+                </label>
+              </div>
+            </div>
+
+            {priceMode === "HT" && (
+              <div className="border-t pt-4">
+                <Label className="text-base font-medium">Taux de TVA (%)</Label>
+                <p className="text-sm text-gray-600 mb-2">Utilisé pour le calcul de la TVA au checkout (ex. 20 pour 20 %).</p>
+                <Input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={0.01}
+                  placeholder="20"
+                  value={vatRate}
+                  onChange={(e) => setVatRate(e.target.value)}
+                  className="mt-1 w-24"
+                />
+              </div>
+            )}
+
+            <div className="flex justify-end pt-4 border-t">
+              <Button onClick={handleSavePrices} disabled={priceSaving} className="min-w-[140px]">
+                {priceSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Enregistrement...
+                  </>
+                ) : (
+                  "Enregistrer"
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

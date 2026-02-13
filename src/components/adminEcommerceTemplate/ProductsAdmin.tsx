@@ -80,6 +80,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
   const [imageCarouselIndex, setImageCarouselIndex] = useState<{ [key: string]: number }>({})
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [priceMode, setPriceMode] = useState<"HT" | "TTC">("HT")
 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -153,11 +154,51 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
     width: "",
     capacity: "",
     weight: "",
+    deliveryCostOverride: "" as string | number,
   })
 
   const [selectedCategory, setSelectedCategory] = useState("")
+  const [subcategories, setSubcategories] = useState<Array<{ id: string; name: string }>>([])
+  const [categoryForSub, setCategoryForSub] = useState("") // top-level category id when showing subcategory dropdown
 
   const itemsPerPage = 10
+
+  // When category (top-level) is selected, fetch subcategories for that category
+  const fetchSubcategoriesForProduct = (parentId: string) => {
+    if (!parentId || !siteId) {
+      setSubcategories([])
+      return
+    }
+    fetch(`/api/services/ecommerce/categories/admin?siteId=${siteId}&parentId=${parentId}`, {
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((r) => r.json())
+      .then((data) => setSubcategories((data.data?.categories ?? []).map((c: any) => ({ id: c.id ?? c._id, name: c.name }))))
+      .catch(() => setSubcategories([]))
+  }
+
+  // When opening edit with a product that has a category/subcategory, resolve parent to show subcategory dropdown
+  useEffect(() => {
+    if (!showEditModal || !editingItem || !productForm.categories || !siteId) return
+    const catId = productForm.categories
+    fetch(`/api/services/ecommerce/categories/admin/${catId}?siteId=${siteId}`, { headers: { "Content-Type": "application/json" } })
+      .then((r) => r.json())
+      .then((data) => {
+        const parent = data.parent
+        const parentId = parent?.id ?? parent?._id ?? parent
+        if (parentId) {
+          setCategoryForSub(parentId)
+          fetchSubcategoriesForProduct(parentId)
+        } else {
+          setCategoryForSub(catId)
+          fetchSubcategoriesForProduct(catId)
+        }
+      })
+      .catch(() => {
+        setCategoryForSub(catId)
+        fetchSubcategoriesForProduct(catId)
+      })
+  }, [showEditModal, editingItem?.id, productForm.categories, siteId])
 
   const handleMediaUpload = async (files: FileList) => {
     if (!files) return
@@ -498,6 +539,9 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
           media: newMediaItems, // Use unified media
           variants: variants, // Use simplified variants
           siteId,
+          ...(productForm.deliveryCostOverride !== "" && productForm.deliveryCostOverride !== undefined
+            ? { deliveryCostOverride: Number(productForm.deliveryCostOverride) }
+            : {}),
         }),
       })
 
@@ -558,6 +602,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
         width: "", // Reset
         capacity: "", // Reset
         weight: "", // Reset
+        deliveryCostOverride: "",
       })
       setVariants([]) // Reset
       setMedia([]) // Reset
@@ -697,6 +742,9 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
           mediaToDelete: mediaToDelete,
           variants: formattedVariants,
           categories: productForm.categories ? [productForm.categories] : [],
+          ...(productForm.deliveryCostOverride !== "" && productForm.deliveryCostOverride !== undefined
+            ? { deliveryCostOverride: Number(productForm.deliveryCostOverride) }
+            : {}),
         }),
       })
 
@@ -725,6 +773,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
         width: "", // Reset
         capacity: "", // Reset
         weight: "", // Reset
+        deliveryCostOverride: "",
       })
       setVariants([]) // Reset
       setMedia([]) // Reset
@@ -740,6 +789,17 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
   useEffect(() => {
     fetchProducts()
   }, [siteId, refreshTrigger])
+
+  useEffect(() => {
+    if (!siteId) return
+    fetch(`/api/services/ecommerce/admin/config?siteId=${siteId}`, { credentials: "include" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.config?.priceMode === "TTC") setPriceMode("TTC")
+        else setPriceMode("HT")
+      })
+      .catch(() => setPriceMode("HT"))
+  }, [siteId])
 
   const showSuccessMessage = (message: string) => {
     setSuccess(message)
@@ -843,6 +903,8 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
           <button
             onClick={() => {
               setShowCreateModal(true)
+              setCategoryForSub("")
+              setSubcategories([])
               setProductForm({
                 title: "",
                 price: "",
@@ -858,6 +920,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
                 width: "", // Reset
                 capacity: "", // Reset
                 weight: "", // Reset
+                deliveryCostOverride: "",
               })
               setVariants([]) // Reset
               setMedia([]) // Reset
@@ -921,7 +984,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Produit</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Prix (EUR HT)</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Prix (EUR {priceMode})</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Stock</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Catégorie</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Stripe</th>
@@ -1060,6 +1123,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
                             width: item.width || "",
                             capacity: item.capacity || "",
                             weight: item.weight || "",
+                            deliveryCostOverride: (item as any).deliveryCostOverride ?? "",
                           })
                           // Map existing variants, ensuring they have an 'id' property for consistency
                           setVariants(
@@ -1159,6 +1223,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
                     width: "", // Reset
                     capacity: "", // Reset
                     weight: "", // Reset
+                    deliveryCostOverride: "",
                   })
                   setVariants([]) // Reset
                   setMedia([]) // Reset
@@ -1184,7 +1249,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Prix (EUR HT) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Prix (EUR {priceMode}) *</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -1201,7 +1266,23 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Prix HT (sans taxes) - Stripe ajoutera la TVA selon le pays
+                  {priceMode === "HT" ? "Prix HT (sans taxes) — la TVA s'ajoute au checkout." : "Prix TTC (toutes taxes comprises) — le client paie ce montant."}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Coût livraison personnalisé (€/unité) (optionnel)</label>
+                <input
+                  type="number"
+                  placeholder="Laisser vide = tarif global"
+                  step="0.01"
+                  min="0"
+                  value={productForm.deliveryCostOverride === "" || productForm.deliveryCostOverride === undefined ? "" : productForm.deliveryCostOverride}
+                  onChange={(e) => setProductForm({ ...productForm, deliveryCostOverride: e.target.value === "" ? "" : e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Si renseigné, ce montant est utilisé par unité pour la livraison à la place du tarif par article du site.
                 </p>
               </div>
 
@@ -1325,11 +1406,16 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Catégorie</label>
                 <select
-                  value={productForm.categories}
-                  onChange={(e) => setProductForm({ ...productForm, categories: e.target.value })}
+                  value={categoryForSub || (categories.some((c) => c.id === productForm.categories) ? productForm.categories : "")}
+                  onChange={(e) => {
+                    const v = e.target.value
+                    setProductForm({ ...productForm, categories: v })
+                    setCategoryForSub(v)
+                    fetchSubcategoriesForProduct(v)
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white"
                 >
-                  <option value="">Sélectionner une catégorie</option>
+                  <option value="">Sélectionner une catégorie (ou aucune)</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.name}
@@ -1337,6 +1423,21 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
                   ))}
                 </select>
               </div>
+              {categoryForSub && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Sous-catégorie (optionnel)</label>
+                  <select
+                    value={subcategories.some((s) => s.id === productForm.categories) ? productForm.categories : ""}
+                    onChange={(e) => setProductForm({ ...productForm, categories: e.target.value || categoryForSub })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white"
+                  >
+                    <option value="">— Aucune (catégorie uniquement)</option>
+                    {subcategories.map((sub) => (
+                      <option key={sub.id} value={sub.id}>{sub.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* Media Upload */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
@@ -1496,6 +1597,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
                       width: "", // Reset
                       capacity: "", // Reset
                       weight: "", // Reset
+                      deliveryCostOverride: "",
                     })
                     setVariants([]) // Reset
                     setMedia([]) // Reset
@@ -1544,6 +1646,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
                     width: "", // Reset
                     capacity: "", // Reset
                     weight: "", // Reset
+                    deliveryCostOverride: "",
                   })
                   setVariants([]) // Reset
                   setMedia([]) // Reset
@@ -1569,7 +1672,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Prix (EUR HT) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Prix (EUR {priceMode}) *</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -1585,7 +1688,23 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Prix HT (sans taxes) - Stripe ajoutera la TVA selon le pays
+                  {priceMode === "HT" ? "Prix HT (sans taxes) — la TVA s'ajoute au checkout." : "Prix TTC (toutes taxes comprises) — le client paie ce montant."}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Coût livraison personnalisé (€/unité) (optionnel)</label>
+                <input
+                  type="number"
+                  placeholder="Laisser vide = tarif global"
+                  step="0.01"
+                  min="0"
+                  value={productForm.deliveryCostOverride === "" || productForm.deliveryCostOverride === undefined ? "" : productForm.deliveryCostOverride}
+                  onChange={(e) => setProductForm({ ...productForm, deliveryCostOverride: e.target.value === "" ? "" : e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Si renseigné, ce montant est utilisé par unité pour la livraison à la place du tarif par article du site.
                 </p>
               </div>
 
@@ -1709,11 +1828,16 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Catégorie</label>
                 <select
-                  value={productForm.categories}
-                  onChange={(e) => setProductForm({ ...productForm, categories: e.target.value })}
+                  value={categoryForSub || (categories.some((c) => c.id === productForm.categories) ? productForm.categories : "")}
+                  onChange={(e) => {
+                    const v = e.target.value
+                    setProductForm({ ...productForm, categories: v })
+                    setCategoryForSub(v)
+                    fetchSubcategoriesForProduct(v)
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white"
                 >
-                  <option value="">Sélectionner une catégorie</option>
+                  <option value="">Sélectionner une catégorie (ou aucune)</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.name}
@@ -1721,6 +1845,21 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
                   ))}
                 </select>
               </div>
+              {categoryForSub && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Sous-catégorie (optionnel)</label>
+                  <select
+                    value={subcategories.some((s) => s.id === productForm.categories) ? productForm.categories : ""}
+                    onChange={(e) => setProductForm({ ...productForm, categories: e.target.value || categoryForSub })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white"
+                  >
+                    <option value="">— Aucune (catégorie uniquement)</option>
+                    {subcategories.map((sub) => (
+                      <option key={sub.id} value={sub.id}>{sub.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Médias du produit</label>
@@ -1925,6 +2064,7 @@ export default function ProductsAdmin({ siteId, categories, onDataChange, refres
                       width: "", // Reset
                       capacity: "", // Reset
                       weight: "", // Reset
+                      deliveryCostOverride: "",
                     })
                     setVariants([]) // Reset
                     setMedia([]) // Reset

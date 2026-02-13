@@ -22,4 +22,7 @@ const BlogSchema = new Schema<IBlog>(
   { timestamps: true }
 );
 
+// Index pour la liste paginée (Articles you might like) : tri par site puis par date
+BlogSchema.index({ siteId: 1, createdAt: -1 });
+
 export const Blog: Model<IBlog> = mongoose.models.Blog || mongoose.model<IBlog>('Blog', BlogSchema);

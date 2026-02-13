@@ -208,6 +208,9 @@ export default function OrdersAdmin({ siteId }: OrdersAdminProps) {
       case "processing":
       case "packed":
         return "bg-purple-50 text-purple-700 border-purple-200"
+      case "prêt à être livré":
+      case "prêt à être retiré":
+        return "bg-teal-50 text-teal-700 border-teal-200"
       case "pending":
         return "bg-yellow-50 text-yellow-700 border-yellow-200"
       case "cancellationrequested":
@@ -249,6 +252,10 @@ export default function OrdersAdmin({ siteId }: OrdersAdminProps) {
         return "Expédié"
       case "Delivered":
         return "Livré"
+      case "Prêt à être livré":
+        return "Prêt à être livré"
+      case "Prêt à être retiré":
+        return "Prêt à être retiré"
       case "CancellationRequested":
         return "Annulation demandée"
       case "Cancelled":
@@ -310,6 +317,8 @@ export default function OrdersAdmin({ siteId }: OrdersAdminProps) {
               <option value="packed">Emballé</option>
               <option value="shipped">Expédié</option>
               <option value="delivered">Livré</option>
+              <option value="prêt à être livré">Prêt à être livré</option>
+              <option value="prêt à être retiré">Prêt à être retiré</option>
               <option value="cancellationrequested">Annulation demandée</option>
               <option value="cancelled">Annulé</option>
               <option value="refunded">Remboursé</option>
@@ -486,7 +495,7 @@ export default function OrdersAdmin({ siteId }: OrdersAdminProps) {
                 )}
                 
                 <div className="flex gap-2 flex-wrap">
-                  {["Pending", "Processing", "Packed", "Shipped", "Delivered", "CancellationRequested", "Cancelled", "Refunded"].map((status) => (
+                  {["Pending", "Processing", "Packed", "Shipped", "Delivered", "Prêt à être livré", "Prêt à être retiré", "CancellationRequested", "Cancelled", "Refunded"].map((status) => (
                     <button
                       key={status}
                       onClick={() => handleStatusChange(selectedOrder.id, status)}

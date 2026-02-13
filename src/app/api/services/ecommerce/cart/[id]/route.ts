@@ -4,18 +4,24 @@ import { Cart } from "@/lib/models/cart"
 import { Product } from "@/lib/models/product"
 import { getGuestOrUserAuth } from "@/_sharedServices/utils/guestAuth"
 import { FRENCH_ERROR_MESSAGES } from "@/_sharedServices/utils/errorHandler"
+import { extractSiteId } from "@/_sharedServices/utils/siteExtractor"
 
 // PUT - Update cart item quantity (supports both authenticated users and guests)
 export async function PUT(request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
   ) {
   try {
+    
+    let siteId = request.headers.get("x-site-id") || extractSiteId(request)
+    if (!siteId) return NextResponse.json({ success: false, error: "siteId est requis" }, { status: 400 })
+
     // Use optional auth - allows both guests and authenticated users
     const auth = await getGuestOrUserAuth(request)
 
     const body = await request.json()
     const { quantity, variantId } = body
-    const productId = await params.id
+    const { id } = await params
+    const productId = id
 
     console.log("DEBUG: this is the product id", productId)
     console.log("DEBUG: this is the quantity", quantity)
@@ -112,7 +118,8 @@ export async function DELETE(request: NextRequest,
     // Use optional auth - allows both guests and authenticated users
     const auth = await getGuestOrUserAuth(request)
 
-    const productId = await params.id
+    const { id } = await params
+    const productId = id
     // Try to get request body, default to empty object if not present or if DELETE doesn't have body
     let variantId: string | undefined
     try {

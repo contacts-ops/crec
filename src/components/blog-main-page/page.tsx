@@ -229,7 +229,9 @@ const BlogMainPage: React.FC<BlogMainPageProps> = ({
                       data-id={`blog-article-${index}-summary`}
                       data-label={`Article ${index + 1} summary`}
                     >
-                      {article.content.length > 150 ? article.content.substring(0, 150) + '...' : article.content}
+                      {article.content
+                        ? (article.content.length > 150 ? article.content.substring(0, 150) + '...' : article.content)
+                        : ''}
                     </p>
 
                     {/* Article Meta */}
@@ -280,8 +282,8 @@ const BlogMainPage: React.FC<BlogMainPageProps> = ({
                           className="text-sm font-medium"
                           style={{ ...textStyle, color: primaryColor }}
                           data-editable="true"
-                          data-id="blog-ctaText"
-                          data-label="CTA text"
+                          data-id={`blog-article-${index}-ctaText`}
+                          data-label={`Article ${index + 1} CTA text`}
                         >
                           Lire l'article
                         </span>

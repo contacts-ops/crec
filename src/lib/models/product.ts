@@ -49,6 +49,8 @@ export interface IProduct extends Document {
   low_stock_threshold: number
   variants?: IVariant[]
   stripeProductId?: string
+  /** Optional per-product delivery cost (€ per unit). If set, used instead of site per-item rate for shipping. */
+  deliveryCostOverride?: number
 }
 
 const SEOSchema = new Schema<ISEO>({
@@ -227,6 +229,11 @@ const ProductSchema = new Schema<IProduct>(
         },
         message: "Invalid Stripe product ID format",
       },
+    },
+    deliveryCostOverride: {
+      type: Number,
+      default: undefined,
+      min: [0, "Delivery cost cannot be negative"],
     },
   },
   {

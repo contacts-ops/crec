@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Fragment } from "react"
 import { useSiteLink } from "@/hooks/use-site-link"
 import { Search, RefreshCw, Edit, Trash2, Layers, Plus, X, Upload, Filter, ArrowUpDown } from "lucide-react"
 
@@ -10,8 +10,10 @@ interface Category {
   name: string
   slug: string
   description: string
-  visible: boolean
-  order: number
+  visible?: boolean
+  order?: number
+  parent?: string | null
+  parentPopulated?: { id: string; name: string } | null
   images?: string[]
   createdAt: string
   updatedAt: string
@@ -45,7 +47,13 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
     name: "",
     slug: "",
     description: "",
+    parent: "" as string, // optional: parent category id for subcategories
   })
+
+  const [topLevelOnly, setTopLevelOnly] = useState(true) // true = only categories, false = all (categories + subcategories)
+  const [subcategoriesByParent, setSubcategoriesByParent] = useState<Record<string, Category[]>>({})
+  const [expandedParentId, setExpandedParentId] = useState<string | null>(null)
+  const [topLevelCategories, setTopLevelCategories] = useState<Category[]>([]) // for parent dropdown in create/edit
 
   const itemsPerPage = 10
 
@@ -54,7 +62,9 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
     setError("")
 
     try {
-      const response = await fetch(`/api/services/ecommerce/categories/admin?siteId=${siteId}`, {
+      const params = new URLSearchParams({ siteId })
+      if (topLevelOnly) params.set("topLevelOnly", "true")
+      const response = await fetch(`/api/services/ecommerce/categories/admin?${params}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       })
@@ -141,7 +151,10 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...categoryForm,
+          name: categoryForm.name,
+          slug: categoryForm.slug,
+          description: categoryForm.description,
+          parent: categoryForm.parent || undefined,
           images: imagesToSend,
           siteId,
         }),
@@ -157,7 +170,7 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
 
       showSuccessMessage("Catégorie créée avec succès")
       setShowCreateModal(false)
-      setCategoryForm({ name: "", slug: "", description: "" })
+      setCategoryForm({ name: "", slug: "", description: "", parent: "" })
       setUploadedImages([])
       setImagesToDelete([])
 
@@ -209,7 +222,10 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...categoryForm,
+          name: categoryForm.name,
+          slug: categoryForm.slug,
+          description: categoryForm.description,
+          parent: categoryForm.parent || null,
           images: finalImages,
           imagesToDelete: imagesToDelete,
         }),
@@ -233,9 +249,40 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
     }
   }
 
+  const fetchSubcategories = async (parentId: string) => {
+    const isExpanded = expandedParentId === parentId
+    if (isExpanded) {
+      setExpandedParentId(null)
+      return
+    }
+    try {
+      const response = await fetch(
+        `/api/services/ecommerce/categories/admin?siteId=${siteId}&parentId=${parentId}`,
+        { method: "GET", headers: { "Content-Type": "application/json" } }
+      )
+      if (!response.ok) return
+      const data = await response.json()
+      const list = data.data?.categories || []
+      setSubcategoriesByParent((prev) => ({ ...prev, [parentId]: list }))
+      setExpandedParentId(parentId)
+    } catch (e) {
+      console.error("Error fetching subcategories:", e)
+    }
+  }
+
   useEffect(() => {
     fetchCategories()
-  }, [siteId, refreshTrigger])
+  }, [siteId, refreshTrigger, topLevelOnly])
+
+  // Fetch top-level categories for parent dropdown when create/edit modal is open
+  useEffect(() => {
+    if (!siteId || (!showCreateModal && !showEditModal)) return
+    const params = new URLSearchParams({ siteId, topLevelOnly: "true" })
+    fetch(`/api/services/ecommerce/categories/admin?${params}`, { headers: { "Content-Type": "application/json" } })
+      .then((r) => r.json())
+      .then((data) => setTopLevelCategories(data.data?.categories ?? []))
+      .catch(() => setTopLevelCategories([]))
+  }, [siteId, showCreateModal, showEditModal])
 
   const showSuccessMessage = (message: string) => {
     setSuccess(message)
@@ -294,7 +341,7 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
           <button
             onClick={() => {
               setShowCreateModal(true)
-              setCategoryForm({ name: "", slug: "", description: "" })
+              setCategoryForm({ name: "", slug: "", description: "", parent: "" })
               setUploadedImages([])
               setImagesToDelete([])
             }}
@@ -308,9 +355,20 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
 
       {/* Filter and Sort Bar */}
       <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">Trier par :</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">Trier par :</span>
+          </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={!topLevelOnly}
+              onChange={(e) => setTopLevelOnly(!e.target.checked)}
+              className="rounded border-gray-300"
+            />
+            <span className="text-sm text-gray-700">Afficher sous-catégories</span>
+          </label>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -330,13 +388,19 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
             <tr>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Catégorie</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Slug</th>
+              {!topLevelOnly && (
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Parent</th>
+              )}
+              {topLevelOnly && (
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Sous-catégories</th>
+              )}
               <th className="px-4 py-3 text-right text-sm font-semibold text-gray-900">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {currentItems.length === 0 ? (
               <tr>
-                <td colSpan={3} className="p-8 text-center">
+                <td colSpan={topLevelOnly ? 4 : 4} className="p-8 text-center">
                   <Layers className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune catégorie trouvée</h3>
                   <p className="text-gray-500">Créez votre première catégorie</p>
@@ -344,6 +408,7 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
               </tr>
             ) : (
               currentItems.map((item) => (
+                <>
                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-6">
                     <div className="flex items-center gap-3">
@@ -364,6 +429,29 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
                     </div>
                   </td>
                   <td className="px-4 py-6 text-sm text-gray-600">{item.slug}</td>
+                  {!topLevelOnly && (
+                    <td className="px-4 py-6 text-sm text-gray-600">
+                      {(item as any).parent?.name ?? "—"}
+                    </td>
+                  )}
+                  {topLevelOnly && (
+                    <td className="px-4 py-6">
+                      <button
+                        type="button"
+                        onClick={() => fetchSubcategories(item.id)}
+                        className="text-sm text-gray-600 hover:text-gray-900 underline"
+                      >
+                        {expandedParentId === item.id
+                          ? "Masquer"
+                          : subcategoriesByParent[item.id] !== undefined
+                            ? `Voir (${subcategoriesByParent[item.id].length})`
+                            : "Voir"}
+                      </button>
+                      {expandedParentId === item.id && (subcategoriesByParent[item.id]?.length ?? 0) === 0 && (
+                        <span className="text-xs text-gray-500 ml-1">Aucune</span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-4 py-6 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button
@@ -372,7 +460,8 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
                           setCategoryForm({
                             name: item.name,
                             slug: item.slug,
-                            description: item.description,
+                            description: item.description ?? "",
+                            parent: item.parent ?? "",
                           })
                           setUploadedImages([])
                           setImagesToDelete([])
@@ -391,6 +480,48 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
                     </div>
                   </td>
                 </tr>
+              {topLevelOnly && expandedParentId === item.id && (subcategoriesByParent[item.id]?.length ?? 0) > 0 && (
+                <tr className="bg-gray-50">
+                  <td colSpan={4} className="px-4 py-2">
+                    <div className="pl-8 space-y-1">
+                      <p className="text-xs font-medium text-gray-500 mb-2">Sous-catégories :</p>
+                      {subcategoriesByParent[item.id].map((sub) => (
+                        <div key={sub.id} className="flex items-center justify-between py-1 border-b border-gray-100 last:border-0">
+                          <span className="text-sm text-gray-700">{sub.name}</span>
+                          <div className="flex gap-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingItem(sub)
+                                setCategoryForm({
+                                  name: sub.name,
+                                  slug: sub.slug,
+                                  description: sub.description ?? "",
+                                  parent: sub.parent ?? item.id,
+                                })
+                                setUploadedImages([])
+                                setImagesToDelete([])
+                                setShowEditModal(true)
+                              }}
+                              className="p-1.5 text-gray-600 hover:bg-gray-200 rounded"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteCategory(sub.id)}
+                              className="p-1.5 text-red-600 hover:bg-red-50 rounded"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              )}
+                </>
               ))
             )}
           </tbody>
@@ -468,6 +599,20 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                   rows={4}
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Parent (optionnel — sous-catégorie)</label>
+                <select
+                  value={categoryForm.parent}
+                  onChange={(e) => setCategoryForm({ ...categoryForm, parent: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                >
+                  <option value="">— Catégorie principale (aucun parent)</option>
+                  {topLevelCategories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
               </div>
 
               {/* Image Upload */}
@@ -568,6 +713,20 @@ export default function CategoriesAdmin({ siteId, onDataChange, refreshTrigger }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                   rows={4}
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Parent (optionnel — sous-catégorie)</label>
+                <select
+                  value={categoryForm.parent}
+                  onChange={(e) => setCategoryForm({ ...categoryForm, parent: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                >
+                  <option value="">— Catégorie principale (aucun parent)</option>
+                  {topLevelCategories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
               </div>
 
               <div>

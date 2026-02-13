@@ -11,6 +11,7 @@ export const runtime = "nodejs"
 export async function GET(request: NextRequest) {
   try {
     let siteId = extractSiteId(request)
+    console.log("siteId, from GET: ", siteId)
     const { searchParams } = new URL(request.url)
     if (!siteId && searchParams.get("siteId")) {
       siteId = searchParams.get("siteId")
@@ -29,9 +30,14 @@ export async function GET(request: NextRequest) {
 
     const raw = (site as any).ecommerce?.delivery
     const delivery = normalizeDeliveryOptions(raw ? (raw as Record<string, unknown>) : undefined)
+    const ecommerce = (site as any).ecommerce || {}
+    const priceMode = ecommerce.priceMode === "TTC" ? "TTC" : "HT"
+    const vatRate = typeof ecommerce.vatRate === "number" ? ecommerce.vatRate : 0.2
 
     return NextResponse.json({
       success: true,
+      priceMode,
+      vatRate,
       delivery: {
         standardBase: delivery.standardBase,
         standardPerItem: delivery.standardPerItem,

@@ -20,8 +20,11 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
+    const parentId = searchParams.get("parentId") ?? searchParams.get("parent") ?? undefined
+    const topLevelOnly = searchParams.get("topLevelOnly") === "true"
     const filters = {
-      parent: searchParams.get("parent") || undefined,
+      parentId,
+      topLevelOnly: topLevelOnly || undefined,
       search: searchParams.get("search") || undefined,
     }
 

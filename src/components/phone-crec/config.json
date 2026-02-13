@@ -1,7 +1,8 @@
 {
   "id": "phone-crec",
   "name": "Phone CREC",
-  "type": "bande",
+  "type": "service",
+  "service": "contact",
   "version": 1,
   "description": "Bandeau conseil : titres, champs Nom et Téléphone, envoi vers adminPhoneTemplate",
   "author": "MajoliHub",
