@@ -40,7 +40,7 @@ import AdminAbonnementTemplate from "../adminAbonnementTemplate/page";
 import AdminShowcase from "../adminShowcase/page";
 import AdminCourrierTemplate from "../adminCourrierTemplate/page";
 import AdminEcommerceTemplate from "../adminEcommerceTemplate/page" // Test ecommerce
-import AdminPhoneTemplate from "../adminPhoneTemplate/page";
+//import AdminPhoneTemplate from "../adminPhoneTemplate/page";
 
 
 import FormulairesAdmin from "../admin-formulaires/page";
@@ -665,9 +665,9 @@ export default function AdminTemplate({
       return <AdminEcommerceTemplate />;
     }
 
-    if (activeService === "phone" && hasPhoneComponents) {
-      return <AdminPhoneTemplate siteId={siteId} />;
-    }
+    //if (activeService === "phone" && hasPhoneComponents) {
+      //return <AdminPhoneTemplate siteId={siteId} />;
+    //}
 
     if (activeService === "users") {
       return <AdminUsersTemplate siteId={siteId} />;
